@@ -120,9 +120,9 @@ public class RingDetermination{
                     BLUE, // The color the rectangle is drawn in
                     2); // Thickness of the rectangle lines
 
-            if (avg1 >= 125) {
+            if (avg1 >= 122) {
                 position = RingPos.NONE;
-            } else if (avg1 >= 121) {
+            } else if (avg1 >= 119) {
                 position = RingPos.ONE;
             } else {
                 position = RingPos.FOUR;

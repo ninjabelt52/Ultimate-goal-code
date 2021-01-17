@@ -18,7 +18,7 @@ public class BlueSideAuton extends LinearOpMode {
     RingDetermination.RingDeterminationPipeline rings;
     RingDetermination.RingDeterminationPipeline.RingPos analysis;
     DcMotor shooter;
-    DcMotor turret;
+    Servo turret;
     Servo kicker;
     Servo rotate;
     Servo claw;
@@ -34,7 +34,7 @@ public class BlueSideAuton extends LinearOpMode {
     public void runOpMode() {
         
         shooter = hardwareMap.get(DcMotor.class, "shooter");
-        turret = hardwareMap.get(DcMotor.class, "turret");
+        turret = hardwareMap.get(Servo.class, "turret");
         kicker = hardwareMap.get(Servo.class, "kicker");
         rotate = hardwareMap.get(Servo.class, "rotate");
         claw = hardwareMap.get(Servo.class, "claw");
@@ -84,7 +84,7 @@ public class BlueSideAuton extends LinearOpMode {
         waitForStart();
             analysis = rings.getAnalysis();
             
-            Shooter.startMotor();
+            //Shooter.startMotor(.97);
 
             telemetry.addData("Amount of rings", rings.getAnalysis());
             telemetry.addData("Average", rings.Avg());

@@ -11,18 +11,22 @@ import static android.os.SystemClock.sleep;
 public class Shooter {
     public DcMotor shooter;
     public Servo kicker;
-    public DcMotor turret;
+    public Servo turret;
 
-    public Shooter(DcMotor shooterinit, DcMotor turretinit, Servo kickerinit){
+    public Shooter(DcMotor shooterinit, Servo turretinit, Servo kickerinit){
         shooter = shooterinit;
         turret = turretinit;
         kicker = kickerinit;
+        turret.setPosition(1);
 
-        turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-    public void startMotor(){
-        shooter.setPower(1);
+    public void startMotor(double power){
+        shooter.setPower(power);
+    }
+
+    public void stopMotor(){
+        shooter.setPower(0);
     }
 
     public void shoot(int shootTimes){
@@ -34,16 +38,16 @@ public class Shooter {
     }
 
     public void shoot(){
-        kicker.setPosition(1);
-        sleep(10);
-        kicker.setPosition(0);
+        kicker.setPosition(.55);
     }
 
-    public void TurnTurret(int heading){
-        heading = Range.clip(heading, 0, 560);
+    public void retract(){
+        kicker.setPosition(1);
+    }
 
-        turret.setTargetPosition(heading);
-        turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        turret.setPower(1);
+    public void TurnTurret(double heading){
+        heading = Range.clip(heading, 0, 1);
+
+        turret.setPosition(heading);
     }
 }

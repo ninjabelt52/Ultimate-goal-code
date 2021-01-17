@@ -16,7 +16,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
         DcMotor Blw, Brw, Flw, Frw, lift, intakeMotor;
         Servo liftRotateServo;
         Servo clawServo;
-        DcMotor turret;
+        Servo turret;
         DcMotorEx shooter;
         Servo kicker;
 
@@ -25,7 +25,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
         Flw = hardwareMap.get(DcMotor.class, "Flw");
         Frw = hardwareMap.get(DcMotor.class, "Frw");
         lift = hardwareMap.get(DcMotor.class, "lift");
-        turret = hardwareMap.get(DcMotor.class, "turret");
+        turret = hardwareMap.get(Servo.class, "turret");
         shooter = hardwareMap.get(DcMotorEx.class, "shooter");
         kicker = hardwareMap.get(Servo.class, "kicker");
         intakeMotor = hardwareMap.get(DcMotor.class, "intake");
@@ -37,10 +37,8 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 
         lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         clawServo.setPosition(.48);
         liftRotateServo.setPosition(.5);
@@ -64,7 +62,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
         boolean open = true;
         boolean toggle2 = false;
         boolean running = false;
-        double pos = 0;
+        double pos = 1;
         double liftReduction = 16;
         double turretReduction = 1;
         double liftTarget = 0;
@@ -74,7 +72,6 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 
         while (opModeIsActive()) {
             lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             //Open or close the claw
             if (this.gamepad2.a) {
@@ -113,27 +110,6 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 
 
             //lift code
-            /*if(-gamepad2.right_stick_y > 0){
-                if(lift.getCurrentPosition() < 1100){
-                    lift.setPower(-gamepad2.right_stick_y * liftReduction);
-                }else{
-                    lift.setPower(0);
-                }
-            }else if(-gamepad2.right_stick_y < 0){
-                if(lift.getCurrentPosition() > 40){
-                    lift.setPower(-gamepad2.right_stick_y * liftReduction);
-                }else{
-                    lift.setPower(0);
-                }
-            }else{
-                lift.setPower(0);
-            }
-
-            if(lift.getCurrentPosition() > 900 || lift.getCurrentPosition() < 150){
-                liftReduction = .5;
-            }else{
-                liftReduction = 1;
-            }*/
 
             liftTarget = Range.clip(liftTarget, 0, 1110);
 
@@ -179,20 +155,18 @@ public class UltimateGoalTeleOp extends LinearOpMode {
             if(gamepad2.right_stick_x != 0){
                 pos += gamepad2.right_stick_x * turretReduction;
             }else if(gamepad2.x){
-                pos = -110;
+                pos = .773;
             }
 
             if(gamepad2.right_bumper){
-                turretReduction = .5;
+                turretReduction = .005;
             }else{
-                turretReduction = 4;
+                turretReduction = .02;
             }
 
-            pos = Range.clip(pos,-368, 0);
+            pos = Range.clip(pos,0, 1);
 
-            turret.setTargetPosition((int)pos);
-            turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            turret.setPower(.5);
+            turret.setPosition(pos);
 
             //This section of the shooter code revs up the shooter motor and activates the kicker servo at the touch of a button
 
@@ -205,12 +179,12 @@ public class UltimateGoalTeleOp extends LinearOpMode {
                 toggle2 = false;
             }
 
-            shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            //shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             if(running) {
                 if (gamepad2.left_trigger > 0) {
                     shooter.setPower(.92);
                 } else {
-                    shooter.setPower(1);
+                    shooter.setPower(.97);
                 }
             }else{
                 shooter.setPower(0);
@@ -226,11 +200,19 @@ public class UltimateGoalTeleOp extends LinearOpMode {
             }
 
             if(powerShot == 1){
-                pos = -204;
+                pos = .599;
+                telemetry.speak("left");
+                telemetry.update();
             }else if(powerShot == 2){
-                pos = -192;
+                pos = .628;
+                telemetry.speak("center");
+                telemetry.update();
             }else if(powerShot == 3){
-                pos = -182;
+                pos = .643;
+                telemetry.speak("right");
+                telemetry.update();
+            }else if (powerShot == 4){
+                powerShot = 1;
             }
 
             if(gamepad2.right_trigger > 0){
@@ -244,10 +226,9 @@ public class UltimateGoalTeleOp extends LinearOpMode {
             telemetry.addData("Lift height", lift.getCurrentPosition());
             telemetry.addData("Kicker pos", kicker.getPosition());
             telemetry.addData("Turret target", pos);
-            telemetry.addData("Turret real", turret.getCurrentPosition());
+            telemetry.addData("Turret real", turret.getPosition());
             telemetry.addData("Running?", running);
             telemetry.addData("velocity", shooter.getVelocity());
-            telemetry.addData("powerShot", powerShot);
             telemetry.update();
         }
     }
