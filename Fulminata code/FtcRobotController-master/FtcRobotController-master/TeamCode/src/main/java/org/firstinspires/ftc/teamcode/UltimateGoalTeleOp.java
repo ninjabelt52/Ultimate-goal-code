@@ -180,6 +180,8 @@ public class UltimateGoalTeleOp extends LinearOpMode {
             }
 
             //shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            //this is a test
             if(running) {
                 if (gamepad2.left_trigger > 0) {
                     shooter.setPower(.92);
