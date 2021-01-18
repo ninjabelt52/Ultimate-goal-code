@@ -35,20 +35,7 @@ public class backupTest extends LinearOpMode {
         }
         waitForStart();
 
-        telemetry.addData("gyro",Drive.gyro());
-        telemetry.update();
-        sleep(5000);
-
-        Drive.TurnLeft(181);
-        sleep(1000);
-        //Drive.Backup(0,-.25, 180, -1120);
-        //sleep(5000);
-
-        //Drive.Backup(.25,0,180,-9999999);
-
-        Drive.Drive(0,.25,181,999999);
-
-        Drive.TurnRight(90);
-
+        Drive.Drive(.5,0,180,1120);
+        Drive.Drive(.5,0,180,2240);
     }
 }

@@ -18,6 +18,7 @@ public class Shooter {
         turret = turretinit;
         kicker = kickerinit;
         turret.setPosition(1);
+        kicker.setPosition(1);
 
     }
 

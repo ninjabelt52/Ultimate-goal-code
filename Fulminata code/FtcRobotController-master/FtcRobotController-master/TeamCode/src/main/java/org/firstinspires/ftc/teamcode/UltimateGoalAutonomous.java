@@ -90,7 +90,6 @@ public class UltimateGoalAutonomous extends LinearOpMode {
         waitForStart();
             analysis = rings.getAnalysis();
             
-            //Shooter.startMotor();
 
             telemetry.addData("Amount of rings", rings.getAnalysis());
             telemetry.addData("Average", rings.Avg());
@@ -99,20 +98,28 @@ public class UltimateGoalAutonomous extends LinearOpMode {
 
             lift.move(580);
             Shooter.startMotor(.97);
+            sleep(500);
 
 
             switch (analysis) {
                 case NONE:
                     Drive.Backup(0,-.25,0,-1020);
                     sleep(500);
+                    //Drive.Drive(.5,0,-20,740);
 
                     Shooter.TurnTurret(.687);
-                    sleep(500);
+                    //Shooter.TurnTurret(.185);
+//                    sleep(250);
+//                    Shooter.shoot();
+//                    sleep(250);
+//                    Shooter.retract();
+
+                    //sleep(250);
                     for(int i = 0; i < 3; i++){
                         Shooter.shoot();
-                        sleep(500);
+                        sleep(250);
                         Shooter.retract();
-                        sleep(500);
+                        sleep(250);
                     }
 
                     sleep(500);
@@ -131,8 +138,15 @@ public class UltimateGoalAutonomous extends LinearOpMode {
                     Claw.openClaw();
                     sleep(500);
 
-                    Drive.Drive(.25, 0,178,560);
-                    Drive.Stop();
+                    Drive.Backup(0,-.25,179,-560);
+                    Drive.TurnLeft(1);
+                    Drive.Drive(.25,0,0,650);
+                    Claw.openArm();
+                    Claw.openClaw();
+                    Drive.Drive(0,.25,0,1120);
+
+
+
                     break;
 
                     //Drive.Backup(0,-.25,180,-250);

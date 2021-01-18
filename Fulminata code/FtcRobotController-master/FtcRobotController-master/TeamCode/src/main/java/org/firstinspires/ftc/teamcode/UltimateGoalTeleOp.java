@@ -125,7 +125,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
             //Drive code
             speed = gamepad1.left_stick_y;
             rotation = gamepad1.right_stick_x;
-            strafe = gamepad1.left_stick_x;
+            strafe = -gamepad1.left_stick_x;
 
             Blw.setPower((speed - strafe + rotation) * speedReduce);
             Brw.setPower((speed + strafe - rotation) * speedReduce);
@@ -180,8 +180,6 @@ public class UltimateGoalTeleOp extends LinearOpMode {
             }
 
             //shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-            //this is a test
             if(running) {
                 if (gamepad2.left_trigger > 0) {
                     shooter.setPower(.92);

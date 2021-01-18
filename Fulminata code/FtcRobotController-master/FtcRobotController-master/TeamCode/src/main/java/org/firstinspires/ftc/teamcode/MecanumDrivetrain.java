@@ -92,10 +92,10 @@ class MecanumDrivetrain {
 
             double correction = (heading - currentHeading) / 360;
 
-            backleftSpeed = backLPower - (correction * 2);
-            backrightSpeed = backRPower + (correction * 2);
-            frontleftSpeed = frontLPower - (correction * 2);
-            frontrightSpeed = frontRPower + (correction * 2);
+            backleftSpeed = (backLPower - (correction * 2)) * rampPower;
+            backrightSpeed = (backRPower + (correction * 2)) * rampPower;
+            frontleftSpeed = (frontLPower - (correction * 2)) * rampPower;
+            frontrightSpeed = (frontRPower + (correction * 2)) * rampPower;
 
             backrightSpeed = Range.clip(backrightSpeed, -1, 1);
             backleftSpeed = Range.clip(backleftSpeed, -1, 1);
