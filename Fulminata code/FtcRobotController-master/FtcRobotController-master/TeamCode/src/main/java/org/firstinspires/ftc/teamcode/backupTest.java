@@ -34,8 +34,20 @@ public class backupTest extends LinearOpMode {
             telemetry.update();
         }
         waitForStart();
+        telemetry.addData("status", "turn");
+        telemetry.update();
+        Drive.TurnRight(90);
+        sleep(1000);
+        telemetry.addData("status", "backup");
+        telemetry.update();
+        Drive.Backup(-.25,0,-90,-280);
+        sleep(5000);
+        telemetry.addData("status", "home");
+        telemetry.update();
+        Drive.TurnLeft(0);
+        sleep(10000);
 
-        Drive.Drive(.5,0,180,1120);
-        Drive.Drive(.5,0,180,2240);
+        telemetry.addLine("HI");
+        telemetry.update();
     }
 }

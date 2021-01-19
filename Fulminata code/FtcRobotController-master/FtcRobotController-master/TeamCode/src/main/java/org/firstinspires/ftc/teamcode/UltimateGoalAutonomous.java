@@ -97,8 +97,13 @@ public class UltimateGoalAutonomous extends LinearOpMode {
 
 
             lift.move(580);
-            Shooter.startMotor(.97);
-            sleep(500);
+            //turn turret to start motor
+            Shooter.TurnTurret(.7);
+            sleep(1);
+
+            while(shooter.getPower() < .91){
+                Shooter.startMotor(.91);
+            }
 
 
             switch (analysis) {
@@ -107,29 +112,30 @@ public class UltimateGoalAutonomous extends LinearOpMode {
                     sleep(500);
                     //Drive.Drive(.5,0,-20,740);
 
-                    Shooter.TurnTurret(.687);
+                    Shooter.TurnTurret(.568);
                     //Shooter.TurnTurret(.185);
 //                    sleep(250);
 //                    Shooter.shoot();
 //                    sleep(250);
 //                    Shooter.retract();
 
-                    //sleep(250);
+                    sleep(250);
                     for(int i = 0; i < 3; i++){
                         Shooter.shoot();
-                        sleep(250);
+                        sleep(500);
                         Shooter.retract();
-                        sleep(250);
+                        sleep(500);
                     }
 
-                    sleep(500);
+                    //sleep(500);
                     Shooter.stopMotor();
+                    //sleep(500);
+                    //Drive to deliver wobble #1
+                    Drive.Backup(0,-.25,0,-190);
                     sleep(500);
-                    Drive.Backup(0,-.25,0,-140);
-
-                    Drive.TurnRight(179);
+                    Drive.TurnRight(170);
                     sleep(500);
-                    Drive.Backup(-.25,0,179,-150);
+                    Drive.Backup(-.25,0,-170,-150);
 
                     Claw.openArm();
                     sleep(500);
@@ -138,14 +144,43 @@ public class UltimateGoalAutonomous extends LinearOpMode {
                     Claw.openClaw();
                     sleep(500);
 
-                    Drive.Backup(0,-.25,179,-560);
-                    Drive.TurnLeft(1);
-                    Drive.Drive(.25,0,0,650);
+                    Drive.Backup(0,-.25,-170,-360);
+                    sleep(500);
+                    Drive.TurnLeft(0);
+                    sleep(500);
+                    //Drive into wall
+                    Drive.Drive(.5,0,-20,350);
+                    //open arm to grab wobble
                     Claw.openArm();
                     Claw.openClaw();
-                    Drive.Drive(0,.25,0,1120);
+                    sleep(500);
+                    //drive off wall
+                    Drive.Backup(-.5,0,0,-5);
+                    sleep(500);
+                    //drive to wobble
+                    Drive.Drive(0,.25,0,580);
+                    sleep(500);
+                    Claw.close();
+                    sleep(500);
+                    lift.move(580);
 
+                    //backup to target zone
+                    Drive.Backup(0,-.25,0,-925);
+                    sleep(500);
+                    //strafe to position the claw in the right direction
+                    Drive.Backup(-.25,0,0,-500);
+                    Drive.TurnRight(170);
+                    //get in position to drop wobble goal
+                    Drive.Drive(0,.25,-170,250);
+                    Claw.openArm();
+                    lift.move(0);
+                    Claw.openClaw();
+                    //wait for wobble #2 to stop wobbling
+                    sleep(500);
+                    //Drive off of wobble goal
+                    Drive.Drive(.25,0,-170,280);
 
+                    sleep(500);
 
                     break;
 
