@@ -31,6 +31,7 @@ public class UltimateGoalAutonomous extends LinearOpMode {
     DcMotor m4;
     BNO055IMU imu;
     DistanceSensor distanceSensor;
+    DcMotor intake;
     
 
     @Override
@@ -48,6 +49,7 @@ public class UltimateGoalAutonomous extends LinearOpMode {
         m4 = hardwareMap.get(DcMotor.class, "Frw");
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         distanceSensor = hardwareMap.get(DistanceSensor.class, "distance");
+        intake = hardwareMap.get(DcMotor.class, "intake");
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
@@ -198,40 +200,25 @@ public class UltimateGoalAutonomous extends LinearOpMode {
 //                    lift.move(0);
 //                    Claw.open();
                 case ONE:
-                    /*Drive.Drive(-1, 0, 0, 1120);
-
-                    Shooter.TurnTurret(250);
-                    Shooter.shoot();
-                    Shooter.TurnTurret(300);
-                    Shooter.shoot();
-                    Shooter.TurnTurret(350);
-                    Shooter.shoot();
-
-                    Drive.Drive(-1, 0, 0, 560);
-
-                    Drive.TurnLeft(90);
-                    lift.move(0);
-                    Claw.open();
-
-                    Claw.fold();
-                    Drive.Drive(0, -1, 0, 1680);
-                    Claw.open();
-                    Drive.Drive(-1, 0, 0, 560);
-                    Claw.close();
-                    lift.move(60);
-                    Claw.fold();
-
-                    Drive.Drive(1, 0, 0, 560);
-                    Drive.Drive(0, 1, 0, 1680);
-                    Claw.open();
-                    lift.move(0);
-
-                    Drive.Drive(0, -1, 0, 560);
-                     */
                     Drive.Backup(-.5, 0,0,-350);
                     sleep(250);
-                    Drive.Backup(0,-.25,0,-1020);
+                    Drive.Backup(0,-.75,0,-1020);
                     sleep(500);
+                    Drive.Drive(.5,0,0,350);
+                    sleep(250);
+
+                    Shooter.TurnTurret(.628);
+                    sleep(500);
+                    for(int i = 0; i < 3; i++){
+                        Shooter.shoot();
+                        sleep(500);
+                        Shooter.retract();
+                        sleep(500);
+                    }
+                    intake.setPower(1);
+                    Drive.Drive(0,.25,0,1120);
+                    sleep(250);
+                    Drive.Backup(0,-.25,0,-1120);
 
                     Shooter.TurnTurret(.628);
                     sleep(500);
@@ -245,9 +232,8 @@ public class UltimateGoalAutonomous extends LinearOpMode {
                     sleep(500);
                     Shooter.stopMotor();
                     Drive.Backup(0,-.25,0,-520);
+                    Drive.Drive(.75,0,-20,1120);
 
-                    sleep(250);
-                    Drive.TurnRight(179);
                     sleep(500);
                     Claw.openArm();
                     sleep(500);
@@ -255,46 +241,37 @@ public class UltimateGoalAutonomous extends LinearOpMode {
                     Claw.openClaw();
                     sleep(500);
 
-                    Drive.Backup(0,-.25,179,-250);
+                    Drive.Drive(0,.75,0,1120);
+                    Claw.close();
+
+                    lift.move(580);
+                    Drive.Backup(0,-.75,0,-1120);
+                    lift.move(0);
+                    Claw.openClaw();
+
+                    Drive.Drive(0,.5,0,560);
 
                     break;
                 case FOUR:
-                   /* Drive.Drive(-1, 0, 0, 1120);
-
-                    Shooter.TurnTurret(250);
-                    Shooter.shoot();
-                    Shooter.TurnTurret(300);
-                    Shooter.shoot();
-                    Shooter.TurnTurret(350);
-                    Shooter.shoot();
-
-                    //Drive.Drive(-1, 0, 0, 1120);
-                    Claw.open();
-                    Claw.fold();
-
-                    //Drive.Drive(1, 0, 0, 2240);
-                    //Drive.TurnLeft(90);
-                    //lift.move(0);
-                    Claw.open();
-                    //Drive.Drive(-1, 0, 90, 560);
-                    Claw.close();
-                    //lift.move(60);
-                    Claw.fold();
-
-                    //Drive.Drive(1, 0, 90,560);
-                    //Drive.Drive(0, 1, 90, 2240);
-                    //Drive.TurnRight(0);
-
-                    Claw.open();
-                    Claw.fold();
-
-                    //Drive.Drive(1, 0, 0, 1120);
-                    */
 
                     Drive.Backup(-.5, 0,0,-250);
                     sleep(250);
                     Drive.Backup(0,-.25,0,-1020);
                     sleep(500);
+
+                    Shooter.TurnTurret(.628);
+                    sleep(500);
+                    for(int i = 0; i < 3; i++){
+                        Shooter.shoot();
+                        sleep(500);
+                        Shooter.retract();
+                        sleep(500);
+                    }
+
+                    intake.setPower(1);
+                    Drive.Drive(0,.25,0,1120);
+                    sleep(250);
+                    Drive.Backup(0,-.25,0,-1120);
 
                     Shooter.TurnTurret(.628);
                     sleep(500);
@@ -319,7 +296,24 @@ public class UltimateGoalAutonomous extends LinearOpMode {
                     lift.move(0);
                     Claw.openClaw();
                     sleep(500);
-                    Drive.Backup(0,-.25,178,-1020);
+                    Drive.Drive(.25,0,178,580);
+
+                    Drive.Backup(0,-.75,178,1120);
+                    Drive.Backup(-.25,0,178,280);
+                    sleep(500);
+                    Claw.close();
+                    sleep(500);
+                    lift.move(580);
+
+                    Drive.Drive(0,.75,178,1120);
+
+                    Drive.Backup(-.25,0,178,560);
+                    sleep(500);
+                    lift.move(0);
+                    sleep(500);
+                    Claw.openClaw();
+
+                    Drive.Backup(0,-.75,178,-560);
                     break;
             }
 

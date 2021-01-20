@@ -40,6 +40,10 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter.setVelocityPIDFCoefficients(1.17,.117,0,11.7);
+
         clawServo.setPosition(.48);
         liftRotateServo.setPosition(.5);
         shooter.setPower(0);
@@ -155,7 +159,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
             if(gamepad2.right_stick_x != 0){
                 pos += gamepad2.right_stick_x * turretReduction;
             }else if(gamepad2.x){
-                pos = .773;
+                pos = .752;
             }
 
             if(gamepad2.right_bumper){
@@ -184,7 +188,8 @@ public class UltimateGoalTeleOp extends LinearOpMode {
                 if (gamepad2.left_trigger > 0) {
                     shooter.setPower(.92);
                 } else {
-                    shooter.setPower(.97);
+                    //shooter.setPower(.92);
+                    shooter.setVelocity(2680);
                 }
             }else{
                 shooter.setPower(0);
@@ -199,15 +204,15 @@ public class UltimateGoalTeleOp extends LinearOpMode {
                 toggle3 = false;
             }
 
-            if(powerShot == 1){
+            if(powerShot == 1 && gamepad2.y){
                 pos = .599;
                 telemetry.speak("left");
                 telemetry.update();
-            }else if(powerShot == 2){
+            }else if(powerShot == 2 && gamepad2.y){
                 pos = .628;
                 telemetry.speak("center");
                 telemetry.update();
-            }else if(powerShot == 3){
+            }else if(powerShot == 3 && gamepad2.y){
                 pos = .643;
                 telemetry.speak("right");
                 telemetry.update();
