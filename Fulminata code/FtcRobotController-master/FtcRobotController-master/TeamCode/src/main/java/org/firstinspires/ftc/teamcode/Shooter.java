@@ -3,27 +3,34 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 import static android.os.SystemClock.sleep;
 
 public class Shooter {
-    public DcMotor shooter;
+    public DcMotorEx shooter;
     public Servo kicker;
     public Servo turret;
 
-    public Shooter(DcMotor shooterinit, Servo turretinit, Servo kickerinit){
+    public Shooter(DcMotorEx shooterinit, Servo turretinit, Servo kickerinit){
         shooter = shooterinit;
         turret = turretinit;
         kicker = kickerinit;
         turret.setPosition(1);
         kicker.setPosition(1);
 
+        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        shooter.setVelocityPIDFCoefficients(0.66,.126,35,12.6);
+
     }
 
-    public void startMotor(double power){
-        shooter.setPower(power);
+    public void startMotor(double velocity){
+        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter.setVelocity(velocity);
     }
 
     public void stopMotor(){

@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -17,7 +18,7 @@ public class BlueSideAuton extends LinearOpMode {
     OpenCvCamera webcam;
     RingDetermination.RingDeterminationPipeline rings;
     RingDetermination.RingDeterminationPipeline.RingPos analysis;
-    DcMotor shooter;
+    DcMotorEx shooter;
     Servo turret;
     Servo kicker;
     Servo rotate;
@@ -33,7 +34,7 @@ public class BlueSideAuton extends LinearOpMode {
     @Override
     public void runOpMode() {
         
-        shooter = hardwareMap.get(DcMotor.class, "shooter");
+        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
         turret = hardwareMap.get(Servo.class, "turret");
         kicker = hardwareMap.get(Servo.class, "kicker");
         rotate = hardwareMap.get(Servo.class, "rotate");

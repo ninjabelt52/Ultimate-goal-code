@@ -30,24 +30,11 @@ public class backupTest extends LinearOpMode {
         MecanumDrivetrain Drive = new MecanumDrivetrain(blw, flw, brw, frw, imu);
 
         while(!isStarted()) {
-            telemetry.addData("ready", Drive.gyro());
+            telemetry.addData("gyro", Drive.gyro());
             telemetry.update();
         }
         waitForStart();
-        telemetry.addData("status", "turn");
-        telemetry.update();
-        Drive.TurnRight(90);
-        sleep(1000);
-        telemetry.addData("status", "backup");
-        telemetry.update();
-        Drive.Backup(-.25,0,-90,-280);
-        sleep(5000);
-        telemetry.addData("status", "home");
-        telemetry.update();
-        Drive.TurnLeft(0);
-        sleep(10000);
-
-        telemetry.addLine("HI");
-        telemetry.update();
+        Drive.TurnRight(180);
+        Drive.Backup(-.25,0,-180,-1120);
     }
 }

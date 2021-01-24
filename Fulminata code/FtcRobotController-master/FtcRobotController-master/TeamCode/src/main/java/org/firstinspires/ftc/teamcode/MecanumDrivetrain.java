@@ -17,6 +17,8 @@ class MecanumDrivetrain {
     public DcMotor m1, m2, m3, m4;
     public BNO055IMU imu;
     public Orientation angles;
+    public Orientation lastAngles = new Orientation();
+    private double globalAngle;
 
     public MecanumDrivetrain(DcMotor m1init, DcMotor m2init, DcMotor m3init, DcMotor m4init, BNO055IMU imuinit) {
         m1 = m1init;
@@ -24,6 +26,11 @@ class MecanumDrivetrain {
         m3 = m3init;
         m4 = m4init;
         imu = imuinit;
+
+        m1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        m2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        m3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        m4.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public MecanumDrivetrain(DcMotor m1init, DcMotor m2init, DcMotor m3init, DcMotor m4init) {
@@ -33,8 +40,26 @@ class MecanumDrivetrain {
         m4 = m4init;
     }
 
-    public String gyro(){
-        return "gyro heading: " + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+    public Double gyro(){
+        // We experimentally determined the Z axis is the axis we want to use for heading angle.
+        // We have to process the angle because the imu works in euler angles so the Z axis is
+        // returned as 0 to +180 or 0 to -180 rolling back to -179 or +179 when rotation passes
+        // 180 degrees. We detect this transition and track the total cumulative angle of rotation.
+
+        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
+        double deltaAngle = angles.firstAngle - lastAngles.firstAngle;
+
+        if (deltaAngle < -180)
+            deltaAngle += 360;
+        else if (deltaAngle > 180)
+            deltaAngle -= 360;
+
+        globalAngle += deltaAngle;
+
+        lastAngles = angles;
+
+        return globalAngle;
     }
 
     public void Drive(double strafe, double straight, double heading, int distance){
@@ -87,8 +112,8 @@ class MecanumDrivetrain {
 
 
 
-            angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            double currentHeading = angles.firstAngle;
+            //angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+            double currentHeading = gyro();
 
             double correction = (heading - currentHeading) / 360;
 
@@ -109,7 +134,6 @@ class MecanumDrivetrain {
             m4.setPower(frontrightSpeed);
 
 
-            angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             /*telemetry.addData("current heading:", angles.firstAngle);
             telemetry.addData("desired heading:", startPosition);
             telemetry.addData("motor speed:", m1.getPower());*/
@@ -127,16 +151,12 @@ class MecanumDrivetrain {
 
     public void TurnRight(int desiredHeading){
         double speed;
-        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        double startAngle = angles.firstAngle;
+        double startAngle = gyro();
 
 
-        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        while ((Math.abs(angles.firstAngle) <= (desiredHeading - 2))) {
-            angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        while ((Math.abs(gyro()) <= (desiredHeading - 2))) {
 
-
-            double remainingAngle = -desiredHeading - angles.firstAngle;
+            double remainingAngle = -desiredHeading - gyro();
             double dividingRatio = -desiredHeading - startAngle;
 
             speed = remainingAngle / dividingRatio;
@@ -162,13 +182,13 @@ class MecanumDrivetrain {
     public void TurnLeft(int desiredHeading){
         double speed;
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        double startAngle = angles.firstAngle;
+        double startAngle = gyro();
 
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        while ((angles.firstAngle <= (desiredHeading -  2))){
+        while ((gyro() <= (desiredHeading -  2))){
             angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
-            double remainingAngle = desiredHeading - angles.firstAngle ;
+            double remainingAngle = desiredHeading - gyro() ;
             double dividingRatio = desiredHeading - startAngle;
 
             speed = remainingAngle / dividingRatio;
@@ -249,7 +269,7 @@ class MecanumDrivetrain {
 
 
             angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            double currentHeading = angles.firstAngle;
+            double currentHeading = gyro();
 
             double correction = (heading - currentHeading) / 100;
 
@@ -264,10 +284,10 @@ class MecanumDrivetrain {
             frontrightSpeed = Range.clip(frontrightSpeed, -1, 1);
 
 
-            m1.setPower(backleftSpeed);
-            m2.setPower(frontleftSpeed);
-            m3.setPower(backrightSpeed);
-            m4.setPower(frontrightSpeed);
+            m1.setPower(backleftSpeed * rampPower);
+            m2.setPower(frontleftSpeed * rampPower);
+            m3.setPower(backrightSpeed * rampPower);
+            m4.setPower(frontrightSpeed * rampPower);
 
 
             angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);

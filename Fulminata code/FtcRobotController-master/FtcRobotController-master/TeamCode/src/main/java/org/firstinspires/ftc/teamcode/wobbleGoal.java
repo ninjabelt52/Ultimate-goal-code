@@ -18,7 +18,7 @@ public class wobbleGoal {
     }
 
     public void openArm(){
-        rotate.setPosition(.5);
+        rotate.setPosition(.68);
     }
 
     public void openClaw(){

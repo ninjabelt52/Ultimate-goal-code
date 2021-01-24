@@ -122,7 +122,7 @@ public class RingDetermination{
 
             if (avg1 >= 122) {
                 position = RingPos.NONE;
-            } else if (avg1 >= 119) {
+            } else if (avg1 >= 118) {
                 position = RingPos.ONE;
             } else {
                 position = RingPos.FOUR;
