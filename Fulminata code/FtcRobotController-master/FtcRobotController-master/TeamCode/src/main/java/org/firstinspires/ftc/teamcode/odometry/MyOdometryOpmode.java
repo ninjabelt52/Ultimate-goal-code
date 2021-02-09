@@ -17,7 +17,7 @@ public class MyOdometryOpmode extends LinearOpMode {
     //Odometry Wheels
     DcMotor verticalLeft, verticalRight, horizontal;
 
-    final double COUNTS_PER_INCH = 307.699557;
+    final double COUNTS_PER_INCH = 310.699557;
 
     //Hardware Map Names for drive motors and odometry wheels. THIS WILL CHANGE ON EACH ROBOT, YOU NEED TO UPDATE THESE VALUES ACCORDINGLY
     String rfName = "Frw", rbName = "Brw", lfName = "Flw", lbName = "Blw";
@@ -39,10 +39,10 @@ public class MyOdometryOpmode extends LinearOpMode {
         Thread positionThread = new Thread(globalPositionUpdate);
         positionThread.start();
 
-        //globalPositionUpdate.reverseRightEncoder();
+        globalPositionUpdate.reverseRightEncoder();
         globalPositionUpdate.reverseLeftEncoder();
 
-        //goToPosition(0,24 * COUNTS_PER_INCH,.5,0,1 * COUNTS_PER_INCH);
+        goToPosition(0,24 * COUNTS_PER_INCH,.5,0,1 * COUNTS_PER_INCH);
 
         while(opModeIsActive()){
             //Display Global (x, y, theta) coordinates
@@ -50,9 +50,9 @@ public class MyOdometryOpmode extends LinearOpMode {
             telemetry.addData("Y Position", globalPositionUpdate.returnYCoordinate() / COUNTS_PER_INCH);
             telemetry.addData("Orientation (Degrees)", globalPositionUpdate.returnOrientation());
 
-            telemetry.addData("Vertical left encoder position", verticalLeft.getCurrentPosition());
-            telemetry.addData("Vertical right encoder position", verticalRight.getCurrentPosition());
-            telemetry.addData("horizontal encoder position", horizontal.getCurrentPosition());
+            telemetry.addData("Vertical left encoder position", globalPositionUpdate.verticalLeftEncoderWheelPosition);
+            telemetry.addData("Vertical right encoder position", globalPositionUpdate.verticalRightEncoderWheelPosition);
+            telemetry.addData("horizontal encoder position", globalPositionUpdate.normalEncoderWheelPosition);
 
             telemetry.addData("Thread Active", positionThread.isAlive());
             telemetry.update();

@@ -36,7 +36,7 @@ public class UltimateGoalAutonomous extends LinearOpMode {
     
 
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException{
         
         shooter = hardwareMap.get(DcMotorEx.class, "shooter");
         turret = hardwareMap.get(Servo.class, "turret");
@@ -60,6 +60,8 @@ public class UltimateGoalAutonomous extends LinearOpMode {
 
         m1.setDirection(DcMotorSimple.Direction.REVERSE);
         m2.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        shooter.setVelocityPIDFCoefficients(4.724,0.136,.432,12.6);
 
         wobbleGoal Claw = new wobbleGoal(claw, rotate);
         MecanumDrivetrain Drive = new MecanumDrivetrain(m1, m2, m3, m4, imu);
@@ -113,7 +115,7 @@ public class UltimateGoalAutonomous extends LinearOpMode {
                     sleep(500);
                     //Drive.Drive(.5,0,-20,740);
 
-                    Shooter.TurnTurret(.644);
+                    Shooter.TurnTurret(.546);
                     //Shooter.TurnTurret(.185);
 //                    sleep(250);
 //                    Shooter.shoot();
@@ -168,7 +170,7 @@ public class UltimateGoalAutonomous extends LinearOpMode {
                     Claw.fold();
 
                     //backup to target zone
-                    Drive.Backup(0,-.25,0,-1025);
+                    Drive.Backup(0,-.25,0,-1055);
                     sleep(500);
                     //strafe to position the claw in the right direction
                     Drive.Backup(-.25,0,0,-500);
@@ -212,7 +214,7 @@ public class UltimateGoalAutonomous extends LinearOpMode {
                     Drive.Drive(.25,0,-25,450);
                     sleep(250);
 
-                    Shooter.TurnTurret(.648);
+                    Shooter.TurnTurret(.55);
                     sleep(500);
                     for(int i = 0; i < 3; i++){
                         Shooter.shoot();
@@ -225,7 +227,7 @@ public class UltimateGoalAutonomous extends LinearOpMode {
                     sleep(250);
                     Drive.Backup(0,-.25,0,-460);
 
-                    Shooter.TurnTurret(.648);
+                    Shooter.TurnTurret(.55);
                     sleep(1500);
 
                     //shoot last ring
@@ -290,15 +292,24 @@ public class UltimateGoalAutonomous extends LinearOpMode {
                     Shooter.startMotor(2350);
 
                     //drive out of way of ring
-                    Drive.Backup(-.25, 0,5,-320);
+                    Drive.Backup(-.35, 0,10,-320);
                     sleep(250);
                     //backup to shoot
-                    Drive.Backup(0,-.75,0,-1020);
+                    Drive.Backup(0,-.75,0,-1000);
                     sleep(500);
                     //drive to shoot
-                    Drive.Drive(.25,0,-20,450);
+                    Drive.Drive(.35,0,-22,550);
 
-                    Shooter.TurnTurret(.638);
+//                    telemetry.addData("gyro", Drive.gyro());
+//                    telemetry.update();
+//                    sleep(1000);
+//                    if(Drive.gyro() > 0){
+//                        Drive.TurnRight(0);
+//                    }else if(Drive.gyro() < 0){
+//                        Drive.TurnLeft(0);
+//                    }
+
+                    Shooter.TurnTurret(.67);
                     sleep(500);
                     for(int i = 0; i < 3; i++){
                         Shooter.shoot();
@@ -312,7 +323,7 @@ public class UltimateGoalAutonomous extends LinearOpMode {
                     sleep(250);
                     Drive.Backup(0,-.25,0,-460);
 
-                    Shooter.TurnTurret(.638);
+                    Shooter.TurnTurret(.64);
                     sleep(500);
 
                     //shoot last 3 rings
@@ -348,7 +359,7 @@ public class UltimateGoalAutonomous extends LinearOpMode {
                     sleep(250);
 
                     //backup to wobble #2
-                    Drive.Backup(0,-.75,-180,-2110);
+                    Drive.Backup(0,-.75,-180,-2160);
                     sleep(500);
                     //strafe to wobble goal
                     Drive.Backup(-.3,0,-180,-470);

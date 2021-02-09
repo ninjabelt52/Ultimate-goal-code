@@ -52,17 +52,17 @@ public class RingDetermination{
 
     public static class RingDeterminationPipeline extends OpenCvPipeline{
 
-        public int avg1;
-        Mat region1_Cb;
+        public int avg1, avg2;
+        Mat region1_Cb, region2_Cb;
         Mat YCrCb = new Mat();
         Mat Cb = new Mat();
 
         final Scalar BLUE = new Scalar(0, 0, 255);
 
-        final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(80, 0);
+        final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(75, 50);
 
-        final int REGION_WIDTH = 130;
-        final int REGION_HEIGHT = 60;
+        final int REGION_WIDTH = 115;
+        final int REGION_HEIGHT = 20;
 
 
         Point region1_pointA = new Point(
@@ -71,6 +71,9 @@ public class RingDetermination{
         Point region1_pointB = new Point(
                 REGION1_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH,
                 REGION1_TOPLEFT_ANCHOR_POINT.y + REGION_HEIGHT);
+
+        Point region2_pointA = new Point(REGION1_TOPLEFT_ANCHOR_POINT.x, 10);
+        Point region2_pointB = new Point(REGION1_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH, 50);
 
         public enum RingPos {
             FOUR,
@@ -103,34 +106,67 @@ public class RingDetermination{
 
 
             region1_Cb = Cb.submat(new Rect(region1_pointA, region1_pointB));
+            region2_Cb = Cb.submat(new Rect(region2_pointA, region2_pointB));
         }
 
         @Override
-        public Mat processFrame (Mat input)
-        {
-
+        public Mat processFrame (Mat input){
             inputToCb(input);
 
             avg1 = (int) Core.mean(region1_Cb).val[0];
+            avg2 = (int) Core.mean(region2_Cb).val[0];
 
-            Imgproc.rectangle(
-                    input, // Buffer to draw on
-                    region1_pointA, // First point which defines the rectangle
-                    region1_pointB, // Second point which defines the rectangle
-                    BLUE, // The color the rectangle is drawn in
-                    2); // Thickness of the rectangle lines
+            if(avg1 > 120 && avg2 > 120){
+                Imgproc.rectangle(input, region1_pointA, region1_pointB, BLUE, 1);
+                Imgproc.rectangle(input, region2_pointA, region2_pointB, BLUE, 1);
 
-            if (avg1 >= 122) {
                 position = RingPos.NONE;
-            } else if (avg1 >= 118) {
-                position = RingPos.ONE;
-            } else {
-                position = RingPos.FOUR;
-            }
+            }else{
+                if(avg2 > avg1){
+                    Imgproc.rectangle(input, region1_pointA, region1_pointB, BLUE, -1);
+                    Imgproc.rectangle(input, region2_pointA, region2_pointB, BLUE, 1);
 
+                    position = RingPos.ONE;
+                }else if(avg1 > avg2) {
+                    Imgproc.rectangle(input, region1_pointA, region1_pointB, BLUE, 1);
+                    Imgproc.rectangle(input, region2_pointA, region2_pointB, BLUE, -1);
+
+                    position = RingPos.FOUR;
+                }else{
+                    Imgproc.rectangle(input, region1_pointA, region1_pointB, BLUE, 1);
+                    Imgproc.rectangle(input, region2_pointA, region2_pointB, BLUE, 1);
+                }
+            }
 
             return input;
         }
+
+//        @Override
+//        public Mat processFrame (Mat input)
+//        {
+//
+//            inputToCb(input);
+//
+//            avg1 = (int) Core.mean(region1_Cb).val[0];
+//
+//            Imgproc.rectangle(
+//                    input, // Buffer to draw on
+//                    region1_pointA, // First point which defines the rectangle
+//                    region1_pointB, // Second point which defines the rectangle
+//                    BLUE, // The color the rectangle is drawn in
+//                    2); // Thickness of the rectangle lines
+//
+//            if (avg1 >= 142) {
+//                position = RingPos.NONE;
+//            } else if (avg1 >= 133) {
+//                position = RingPos.ONE;
+//            } else {
+//                position = RingPos.FOUR;
+//            }
+//
+//
+//            return input;
+//        }
 
         /*
          * Call this from the OpMode thread to obtain the latest analysis
@@ -140,8 +176,8 @@ public class RingDetermination{
             return position;
         }
 
-        public int Avg(){
-            return avg1;
+        public String Avg(){
+            return "average 1: " + avg1 + "\nAverage 2: " + avg2;
         }
     }
 }

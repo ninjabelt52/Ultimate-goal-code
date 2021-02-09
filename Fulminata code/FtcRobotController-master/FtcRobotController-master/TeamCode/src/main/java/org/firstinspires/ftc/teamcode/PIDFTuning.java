@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -17,8 +18,9 @@ public class PIDFTuning extends LinearOpMode {
         boolean running = false;
         boolean toggle2 = false;
         boolean toggle1 = false;
-        double p = .86,i = .126,d = 35,f = 12.6;
-
+        double p = 4.724,i = 0.136,d = .432,f = 12.6;
+        double changeValue;
+        int velocity = 2560, lastvelocity = velocity;
         DcMotorEx shooter;
         Servo turret, kicker;
 
@@ -60,7 +62,11 @@ public class PIDFTuning extends LinearOpMode {
             shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             if(running) {
                     //shooter.setPower(.92);
-                    shooter.setVelocity(2440);
+                    shooter.setVelocity(lastvelocity);
+
+                    if(gamepad2.right_stick_button){
+                        lastvelocity = velocity;
+                    }
             }else{
                 shooter.setPower(0);
             }
@@ -80,6 +86,12 @@ public class PIDFTuning extends LinearOpMode {
                 toggle1 = false;
             }
 
+            if(gamepad2.right_trigger > 0){
+                changeValue = .1;
+            }else{
+                changeValue = .001;
+            }
+
             if(valueChange == 0){
                 telemetry.addData("Changing value", "p+ " + p);
                 telemetry.addData("velocity", shooter.getVelocity());
@@ -87,9 +99,9 @@ public class PIDFTuning extends LinearOpMode {
                 telemetry.update();
 
                 if(gamepad2.y) {
-                    p += .001;
+                    p += changeValue;
                 }else if(gamepad2.a){
-                    p-= .001;
+                    p-= changeValue;
                 }
             }else if(valueChange == 1){
                 telemetry.addData("Changing value", "i: "+ i);
@@ -98,9 +110,9 @@ public class PIDFTuning extends LinearOpMode {
                 telemetry.update();
 
                 if(gamepad2.y) {
-                    i += .001;
+                    i += changeValue;
                 }else if(gamepad2.a){
-                    i-= .001;
+                    i-= changeValue;
                 }
             }else if(valueChange == 2){
                 telemetry.addData("Changing value", "d: " + d);
@@ -109,28 +121,41 @@ public class PIDFTuning extends LinearOpMode {
                 telemetry.update();
 
                 if(gamepad2.y) {
-                    d += .001;
+                    d += changeValue;
                 }else if(gamepad2.a){
-                    d-= .001;
+                    d-= changeValue;
                 }
             }else if(valueChange == 3){
 
 
                 if(gamepad2.y) {
-                    f += .001;
+                    f += changeValue;
                 }else if(gamepad2.a) {
-                    f -= .001;
+                    f -= changeValue;
                 }
 
                 telemetry.addData("Changing value", "f: " + f);
-                telemetry.addData("velocity", shooter.getVelocity());
+                telemetry.addData("velocity desired", velocity);
+                telemetry.addData("velocity real", shooter.getVelocity());
                 telemetry.addData("running?", running);
                 telemetry.update();
             }else if(valueChange == 4){
+
+                if(gamepad2.y) {
+                    velocity ++;
+                }else if(gamepad2.a) {
+                    velocity--;
+                }
+                telemetry.addData("Changing value", "velocity: " + velocity);
+                telemetry.addData("velocity desired", velocity);
+                telemetry.addData("velocity real", shooter.getVelocity());
+                telemetry.addData("running?", running);
+                telemetry.update();
+            }else if(valueChange == 5){
                 valueChange = 0;
             }
 
-            if(gamepad2.right_stick_button)
+            //if(gamepad2.right_stick_button)
             shooter.setVelocityPIDFCoefficients(p,i,d,f);
         }
     }
