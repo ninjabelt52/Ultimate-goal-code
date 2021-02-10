@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -33,7 +34,7 @@ public class UltimateGoalAutonomous extends LinearOpMode {
     BNO055IMU imu;
     DistanceSensor distanceSensor;
     DcMotor intake;
-    
+
 
     @Override
     public void runOpMode() throws InterruptedException{
@@ -61,7 +62,7 @@ public class UltimateGoalAutonomous extends LinearOpMode {
         m1.setDirection(DcMotorSimple.Direction.REVERSE);
         m2.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        shooter.setVelocityPIDFCoefficients(4.724,0.136,.432,12.6);
+        shooter.setVelocityPIDFCoefficients(.5,0,1,12.6);
 
         wobbleGoal Claw = new wobbleGoal(claw, rotate);
         MecanumDrivetrain Drive = new MecanumDrivetrain(m1, m2, m3, m4, imu);
@@ -86,7 +87,7 @@ public class UltimateGoalAutonomous extends LinearOpMode {
         });
 
         while(!isStarted()) {
-            telemetry.addLine("Initialized");
+            telemetry.addLine("Initialized update");
             telemetry.addData("Amount of rings", rings.getAnalysis());
             telemetry.addData("Average", rings.Avg());
             telemetry.update();
@@ -104,7 +105,7 @@ public class UltimateGoalAutonomous extends LinearOpMode {
             lift.move(580);
             //turn turret to start motor
             while(shooter.getVelocity() < 1000){
-                Shooter.startMotor(2275);
+                Shooter.startMotor(2450);
             }
 
 
@@ -115,7 +116,7 @@ public class UltimateGoalAutonomous extends LinearOpMode {
                     sleep(500);
                     //Drive.Drive(.5,0,-20,740);
 
-                    Shooter.TurnTurret(.546);
+                    Shooter.TurnTurret(.664);
                     //Shooter.TurnTurret(.185);
 //                    sleep(250);
 //                    Shooter.shoot();
@@ -214,20 +215,23 @@ public class UltimateGoalAutonomous extends LinearOpMode {
                     Drive.Drive(.25,0,-25,450);
                     sleep(250);
 
-                    Shooter.TurnTurret(.55);
+                    Shooter.TurnTurret(.64);
                     sleep(500);
                     for(int i = 0; i < 3; i++){
                         Shooter.shoot();
                         sleep(500);
                         Shooter.retract();
                         sleep(500);
+                        telemetry.addData("Desired velocity", 2500);
+                        telemetry.addData("actual velocity", shooter.getVelocity());
+                        telemetry.update();
                     }
                     intake.setPower(1);
                     Drive.Drive(0,.25,0,560);
                     sleep(250);
                     Drive.Backup(0,-.25,0,-460);
 
-                    Shooter.TurnTurret(.55);
+                    Shooter.TurnTurret(.65);
                     sleep(1500);
 
                     //shoot last ring
@@ -243,7 +247,7 @@ public class UltimateGoalAutonomous extends LinearOpMode {
                     intake.setPower(0);
 
                     //backup into target zone
-                    Drive.Backup(0,-.25,0,-920);
+                    Drive.Backup(0,-.25,0,-1120);
                     Drive.Drive(.5,0,-35,150);
 
                     //drop wobble goal
@@ -259,9 +263,9 @@ public class UltimateGoalAutonomous extends LinearOpMode {
                     Drive.Drive(0,.75,0,1320);
                     sleep(500);
                     //drive into wall
-                    Drive.Drive(.25,0,-20,105);
+                    Drive.Drive(.35,0,-20,205);
                     //drive off wall
-                    Drive.Backup(-.25,0,0,-5);
+                    //Drive.Backup(-.25,0,0,-5);
 
                     //drive slowly to wobble #2
                     Drive.Drive(0,.25,0,380);
@@ -274,7 +278,7 @@ public class UltimateGoalAutonomous extends LinearOpMode {
                     //strafe off wall
                     Drive.Backup(-.5,0,0,-130);
                     //backup to target zone
-                    Drive.Backup(0,-.75,0,-1720);
+                    Drive.Backup(0,-.75,0,-1920);
                     lift.move(0);
                     //drop wobble
                     Claw.openClaw();
@@ -284,7 +288,7 @@ public class UltimateGoalAutonomous extends LinearOpMode {
                     Drive.Drive(.5,0,-20,100);
                     Claw.fold();
                     //HOME FREE!!!
-                    Drive.Drive(0,.5,0,380);
+                    Drive.Drive(0,.5,0,480);
 
                     break;
                 case FOUR:

@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.odometry;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -11,6 +14,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
  * Created by Sarthak on 6/1/2019.
  * Example OpMode that runs the GlobalCoordinatePosition thread and accesses the (x, y, theta) coordinate values
  */
+@Config
 @TeleOp(name = "Global Coordinate Position Test", group = "Calibration")
 //@Disabled
 public class GlobalCoordinatePositionUpdateSample extends LinearOpMode {
@@ -26,6 +30,9 @@ public class GlobalCoordinatePositionUpdateSample extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+
+        FtcDashboard dash = FtcDashboard.getInstance();
+        telemetry = dash.getTelemetry();
 
         //Assign the hardware map to the odometry wheels
         verticalLeft = hardwareMap.dcMotor.get(verticalLeftEncoderName);
@@ -81,6 +88,11 @@ public class GlobalCoordinatePositionUpdateSample extends LinearOpMode {
             telemetry.addData("horizontal current position", horizontal.getCurrentPosition());
             telemetry.addData("Thread Active", positionThread.isAlive());
             telemetry.update();
+
+            TelemetryPacket packet = new TelemetryPacket();
+
+            packet.fieldOverlay().fillRect(globalPositionUpdate.returnXCoordinate(), globalPositionUpdate.returnYCoordinate(),2,2).setFill("black");
+            dash.sendTelemetryPacket(packet);
         }
 
         //Stop the thread
