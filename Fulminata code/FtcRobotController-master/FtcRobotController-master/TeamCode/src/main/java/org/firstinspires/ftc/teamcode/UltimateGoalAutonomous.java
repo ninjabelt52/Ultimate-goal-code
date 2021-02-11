@@ -62,7 +62,7 @@ public class UltimateGoalAutonomous extends LinearOpMode {
         m1.setDirection(DcMotorSimple.Direction.REVERSE);
         m2.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        shooter.setVelocityPIDFCoefficients(.5,0,1,12.6);
+        shooter.setVelocityPIDFCoefficients(.5,1,1,12.6);
 
         wobbleGoal Claw = new wobbleGoal(claw, rotate);
         MecanumDrivetrain Drive = new MecanumDrivetrain(m1, m2, m3, m4, imu);
