@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.odometry;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -17,13 +16,16 @@ public class MyOdometryOpmode extends LinearOpMode {
     //Odometry Wheels
     DcMotor verticalLeft, verticalRight, horizontal;
 
-    final double COUNTS_PER_INCH = 310.699557;
+    final double WHEEL_DIAMETER = 1.496062992125984;
+
+    //The amount of encoder ticks for each inch the robot moves. THIS WILL CHANGE FOR EACH ROBOT AND NEEDS TO BE UPDATED HERE
+    final double COUNTS_PER_INCH = 4 * (360 * (1/(WHEEL_DIAMETER * Math.PI)));
 
     //Hardware Map Names for drive motors and odometry wheels. THIS WILL CHANGE ON EACH ROBOT, YOU NEED TO UPDATE THESE VALUES ACCORDINGLY
     String rfName = "Frw", rbName = "Brw", lfName = "Flw", lbName = "Blw";
-    String verticalLeftEncoderName = lfName, verticalRightEncoderName = rbName, horizontalEncoderName = lbName;
+    String verticalLeftEncoderName = rbName, verticalRightEncoderName = lfName, horizontalEncoderName = lbName;
 
-    OdometryGlobalCoordinatePosition globalPositionUpdate;
+    OdometryGlobalCoordinatePosition2 globalPositionUpdate;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -35,14 +37,15 @@ public class MyOdometryOpmode extends LinearOpMode {
         waitForStart();
 
         //Create and start GlobalCoordinatePosition thread to constantly update the global coordinate positions
-        globalPositionUpdate = new OdometryGlobalCoordinatePosition(verticalLeft, verticalRight, horizontal, COUNTS_PER_INCH, 75);
+        globalPositionUpdate = new OdometryGlobalCoordinatePosition2(verticalLeft, verticalRight, horizontal, COUNTS_PER_INCH, 75);
         Thread positionThread = new Thread(globalPositionUpdate);
         positionThread.start();
 
-        globalPositionUpdate.reverseRightEncoder();
-        globalPositionUpdate.reverseLeftEncoder();
+        //globalPositionUpdate.reverseRightEncoder();
+        //globalPositionUpdate.reverseLeftEncoder();
+        globalPositionUpdate.reverseNormalEncoder();
 
-        goToPosition(0,24 * COUNTS_PER_INCH,.5,0,1 * COUNTS_PER_INCH);
+        goToPosition(0,-24 * COUNTS_PER_INCH,.5,0,1 * COUNTS_PER_INCH);
 
         while(opModeIsActive()){
             //Display Global (x, y, theta) coordinates
@@ -56,6 +59,8 @@ public class MyOdometryOpmode extends LinearOpMode {
 
             telemetry.addData("Thread Active", positionThread.isAlive());
             telemetry.update();
+
+
         }
 
         //Stop the thread
@@ -83,6 +88,11 @@ public class MyOdometryOpmode extends LinearOpMode {
             left_front.setPower(robotMovementYComponent + pivotCorrection + robotMovementXComponent);
             right_back.setPower(robotMovementYComponent - pivotCorrection + robotMovementXComponent);
             left_back.setPower(robotMovementYComponent + pivotCorrection - robotMovementXComponent);
+
+            telemetry.addData("x component", robotMovementXComponent);
+            telemetry.addData("y component", robotMovementYComponent);
+            telemetry.addData("rotation", pivotCorrection);
+            telemetry.update();
         }
     }
 
@@ -137,7 +147,7 @@ public class MyOdometryOpmode extends LinearOpMode {
      * @return the x vector
      */
     private double calculateX(double desiredAngle, double speed) {
-        return Math.sin(Math.toRadians(desiredAngle)) * speed;
+        return Math.cos(Math.toRadians(desiredAngle)) * speed;
     }
 
     /**
@@ -147,6 +157,6 @@ public class MyOdometryOpmode extends LinearOpMode {
      * @return the y vector
      */
     private double calculateY(double desiredAngle, double speed) {
-        return Math.cos(Math.toRadians(desiredAngle)) * speed;
+        return Math.sin(Math.toRadians(desiredAngle)) * speed;
     }
 }

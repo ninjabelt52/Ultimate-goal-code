@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.odometry;
+package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
@@ -18,49 +18,40 @@ import java.io.File;
  * Odometry system calibration. Run this OpMode to generate the necessary constants to calculate the robot's global position on the field.
  * The Global Positioning Algorithm will not function and will throw an error if this program is not run first
  */
-@TeleOp(name = "Odometry System Calibration", group = "Calibration")
-//@Disabled
+@TeleOp(name = "Odometry System Calibration 2", group = "Calibration")
 public class OdometryCalibration extends LinearOpMode {
     //Drive motors
     DcMotor right_front, right_back, left_front, left_back;
     //Odometry Wheels
     DcMotor verticalLeft, verticalRight, horizontal;
 
-
     //IMU Sensor
     BNO055IMU imu;
 
     //Hardware Map Names for drive motors and odometry wheels. THIS WILL CHANGE ON EACH ROBOT, YOU NEED TO UPDATE THESE VALUES ACCORDINGLY
     String rfName = "Frw", rbName = "Brw", lfName = "Flw", lbName = "Blw";
-    String verticalLeftEncoderName = lfName, verticalRightEncoderName = rbName, horizontalEncoderName = lbName;
+    String verticalLeftEncoderName = rbName, verticalRightEncoderName = lfName, horizontalEncoderName = lbName;
 
     final double PIVOT_SPEED = 0.5;
-    //wheel diameter in inches
+
+    //The amount of encoder ticks for each inch the robot moves. THIS WILL CHANGE FOR EACH ROBOT AND NEEDS TO BE UPDATED HERE
+//wheel diameter in inches
     final double WHEEL_DIAMETER = 1.496062992125984;
 
     //The amount of encoder ticks for each inch the robot moves. THIS WILL CHANGE FOR EACH ROBOT AND NEEDS TO BE UPDATED HERE
     final double COUNTS_PER_INCH = 4 * (360 * (1/(WHEEL_DIAMETER * Math.PI)));
-
     ElapsedTime timer = new ElapsedTime();
 
     double horizontalTickOffset = 0;
 
-
-
     //Text files to write the values to. The files are stored in the robot controller under Internal Storage\FIRST\settings
     File wheelBaseSeparationFile = AppUtil.getInstance().getSettingsFile("wheelBaseSeparation.txt");
     File horizontalTickOffsetFile = AppUtil.getInstance().getSettingsFile("horizontalTickOffset.txt");
-    File horizontalRadiusFile = AppUtil.getInstance().getSettingsFile("horizontalRadius.txt");
 
     @Override
     public void runOpMode() throws InterruptedException {
         //Initialize hardware map values. PLEASE UPDATE THESE VALUES TO MATCH YOUR CONFIGURATION
         initHardwareMap(rfName, rbName, lfName, lbName, verticalLeftEncoderName, verticalRightEncoderName, horizontalEncoderName);
-
-        OdometryGlobalCoordinatePosition1 globalPositionUpdate = new OdometryGlobalCoordinatePosition1(verticalLeft,verticalRight,horizontal,COUNTS_PER_INCH,75);
-        Thread positionThread = new Thread(globalPositionUpdate);
-        positionThread.start();
-
 
         //Initialize IMU hardware map value. PLEASE UPDATE THIS VALUE TO MATCH YOUR CONFIGURATION
         imu = hardwareMap.get(BNO055IMU.class, "imu");
@@ -79,7 +70,6 @@ public class OdometryCalibration extends LinearOpMode {
 
         //Odometry System Calibration Init Complete
         telemetry.addData("Odometry System Calibration Status", "Init Complete");
-        telemetry.addData("clicks per inch", COUNTS_PER_INCH);
         telemetry.update();
 
         waitForStart();
@@ -111,30 +101,27 @@ public class OdometryCalibration extends LinearOpMode {
         //Record IMU and encoder values to calculate the constants for the global position algorithm
         double angle = getZAngle();
 
-        int left = -verticalLeft.getCurrentPosition();
-        int right = -verticalRight.getCurrentPosition();
-        int horizontalEncoder = horizontal.getCurrentPosition();
-
         /*
         Encoder Difference is calculated by the formula (leftEncoder - rightEncoder)
         Since the left encoder is also mapped to a drive motor, the encoder value needs to be reversed with the negative sign in front
         THIS MAY NEED TO BE CHANGED FOR EACH ROBOT
        */
-        double encoderDifference = Math.abs(left) + (Math.abs(right));
+
+        int left = verticalLeft.getCurrentPosition();
+        int right = -verticalRight.getCurrentPosition();
+        int horizontalEncoder = horizontal.getCurrentPosition();
+
+        double encoderDifference = Math.abs(verticalLeft.getCurrentPosition()) + (Math.abs(verticalRight.getCurrentPosition()));
 
         double verticalEncoderTickOffsetPerDegree = encoderDifference/angle;
 
         double wheelBaseSeparation = (2*90*verticalEncoderTickOffsetPerDegree)/(Math.PI*COUNTS_PER_INCH);
-        //double wheelBaseSeparation = ((angle/360) * (Math.abs(left) + Math.abs(right))/2)/ Math.PI;
 
-        horizontalTickOffset = -((horizontalEncoder)/Math.toRadians(angle));
-
-        double horizontalRadius = horizontalEncoder * COUNTS_PER_INCH/Math.toRadians(angle);
+        horizontalTickOffset = horizontal.getCurrentPosition()/Math.toRadians(getZAngle());
 
         //Write the constants to text files
         ReadWriteFile.writeFile(wheelBaseSeparationFile, String.valueOf(wheelBaseSeparation));
         ReadWriteFile.writeFile(horizontalTickOffsetFile, String.valueOf(horizontalTickOffset));
-        ReadWriteFile.writeFile(horizontalRadiusFile, String.valueOf(horizontalRadius));
 
         while(opModeIsActive()){
             telemetry.addData("Odometry System Calibration Status", "Calibration Complete");
@@ -145,10 +132,9 @@ public class OdometryCalibration extends LinearOpMode {
             //Display raw values
             telemetry.addData("IMU Angle", getZAngle());
             telemetry.addData("Vertical Left Position", -verticalLeft.getCurrentPosition());
-            telemetry.addData("Vertical Right Position", -verticalRight.getCurrentPosition());
+            telemetry.addData("Vertical Right Position", verticalRight.getCurrentPosition());
             telemetry.addData("Horizontal Position", horizontal.getCurrentPosition());
             telemetry.addData("Vertical Encoder Offset", verticalEncoderTickOffsetPerDegree);
-            telemetry.addData("encoder difference", encoderDifference);
 
             //Update values
             telemetry.update();
@@ -189,9 +175,10 @@ public class OdometryCalibration extends LinearOpMode {
         left_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         left_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        left_front.setDirection(DcMotorSimple.Direction.REVERSE);
-        //right_front.setDirection(DcMotorSimple.Direction.REVERSE);
-        left_back.setDirection(DcMotorSimple.Direction.REVERSE);
+//        left_front.setDirection(DcMotorSimple.Direction.REVERSE);
+        right_front.setDirection(DcMotorSimple.Direction.REVERSE);
+        right_back.setDirection(DcMotorSimple.Direction.REVERSE);
+        //left_back.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
         telemetry.addData("Status", "Hardware Map Init Complete");

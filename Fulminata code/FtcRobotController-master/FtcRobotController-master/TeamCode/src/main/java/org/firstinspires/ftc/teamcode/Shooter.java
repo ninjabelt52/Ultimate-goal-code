@@ -24,7 +24,7 @@ public class Shooter {
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        shooter.setVelocityPIDFCoefficients(.5,0,1,12.6);
+        shooter.setVelocityPIDFCoefficients(4.724,.136,.432,12.6);
 
     }
 

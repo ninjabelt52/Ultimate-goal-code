@@ -43,7 +43,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //this is the ideal pidf values for a gobilda 5202 1:1 motor
-        shooter.setVelocityPIDFCoefficients(.5,0,1,12.6);
+        shooter.setVelocityPIDFCoefficients(4.724,.136,.432,12.6);
 
         clawServo.setPosition(.48);
         liftRotateServo.setPosition(.68);
@@ -64,7 +64,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
         double strafe;
         double speedReduce = 1;
         boolean toggle = false;
-        boolean open = true;
+        boolean open = false;
         boolean toggle2 = false;
         boolean running = false;
         double pos = 1;
@@ -161,7 +161,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
             if(gamepad2.right_stick_x != 0){
                 pos += gamepad2.right_stick_x * turretReduction;
             }else if(gamepad2.x){
-                pos = .664;
+                pos = .674;
             }
 
             if(gamepad2.right_bumper){

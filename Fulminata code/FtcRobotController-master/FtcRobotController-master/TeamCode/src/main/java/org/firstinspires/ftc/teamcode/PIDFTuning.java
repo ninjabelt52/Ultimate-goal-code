@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
+//import com.acmerobotics.dashboard.FtcDashboard;
+//import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -11,20 +11,20 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-@Config
+//@Config
 @TeleOp
 public class PIDFTuning extends LinearOpMode {
 
     public static boolean running = false;
-    public static double p = .5,i = 5,d = 15, f = 0;
+    public static double p = 4.724,i = .136,d = .432, f = 12.6;
     public static int velocity = 2500;
     public static double pos = 1;
     public static boolean shoot = false;
 
-    FtcDashboard dash;
+    //FtcDashboard dash;
     public void runOpMode(){
-        dash = FtcDashboard.getInstance();
-        Telemetry Dashboardtelemetry = dash.getTelemetry();
+        //dash = FtcDashboard.getInstance();
+        //Telemetry Dashboardtelemetry = dash.getTelemetry();
         int valueChange = 0;
         double turretReduction = 0;
         boolean toggle2 = false;
@@ -168,10 +168,10 @@ public class PIDFTuning extends LinearOpMode {
             //if(gamepad2.right_stick_button)
             shooter.setVelocityPIDFCoefficients(p,i,d,f);
 
-            Dashboardtelemetry.addData("Current Velocity", shooter.getVelocity());
-            Dashboardtelemetry.addData("target Velocity", velocity);
-            Dashboardtelemetry.addData("output power", shooter.getPower() * 2580);
-            Dashboardtelemetry.update();
+//            Dashboardtelemetry.addData("Current Velocity", shooter.getVelocity());
+//            Dashboardtelemetry.addData("target Velocity", velocity);
+//            Dashboardtelemetry.addData("output power", shooter.getPower() * 2580);
+//            Dashboardtelemetry.update();
         }
     }
 }
