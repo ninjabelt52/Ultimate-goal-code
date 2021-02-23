@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
@@ -26,6 +27,20 @@ public class Shooter {
 
         shooter.setVelocityPIDFCoefficients(4.724,.136,.432,12.6);
 
+    }
+
+    public Shooter(HardwareMap hardwareMap){
+        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+        turret = hardwareMap.get(Servo.class, "turret");
+        kicker = hardwareMap.get(Servo.class, "kicker");
+
+        turret.setPosition(1);
+        kicker.setPosition(1);
+
+        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        shooter.setVelocityPIDFCoefficients(4.724,.136,.432,12.6);
     }
 
     public void startMotor(double velocity){
@@ -57,5 +72,9 @@ public class Shooter {
         heading = Range.clip(heading, 0, 1);
 
         turret.setPosition(heading);
+    }
+
+    public double getVelocity(){
+        return shooter.getVelocity();
     }
 }

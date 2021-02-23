@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
@@ -38,6 +39,23 @@ class MecanumDrivetrain {
         m2 = m2init;
         m3 = m3init;
         m4 = m4init;
+    }
+
+    public MecanumDrivetrain(HardwareMap hardwareMap){
+        m1 = hardwareMap.get(DcMotor.class, "Blw");
+        m2 = hardwareMap.get(DcMotor.class, "Flw");
+        m3 = hardwareMap.get(DcMotor.class, "Brw");
+        m4 = hardwareMap.get(DcMotor.class, "Frw");
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.calibrationDataFile = "BNO055IMUCalibration.json";
+
+        imu.initialize(parameters);
+
+        m1.setDirection(DcMotorSimple.Direction.REVERSE);
+        m2.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public Double gyro(){

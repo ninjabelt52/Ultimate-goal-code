@@ -1,5 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -8,6 +13,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+
 
 @TeleOp (name = "TeleOpMode")
 public class UltimateGoalTeleOp extends LinearOpMode {
@@ -20,10 +27,10 @@ public class UltimateGoalTeleOp extends LinearOpMode {
         DcMotorEx shooter;
         Servo kicker;
 
-        Blw = hardwareMap.get(DcMotor.class, "Blw");
-        Brw = hardwareMap.get(DcMotor.class, "Brw");
-        Flw = hardwareMap.get(DcMotor.class, "Flw");
-        Frw = hardwareMap.get(DcMotor.class, "Frw");
+//        Blw = hardwareMap.get(DcMotor.class, "Blw");
+//        Brw = hardwareMap.get(DcMotor.class, "Brw");
+//        Flw = hardwareMap.get(DcMotor.class, "Flw");
+//        Frw = hardwareMap.get(DcMotor.class, "Frw");
         lift = hardwareMap.get(DcMotor.class, "lift");
         turret = hardwareMap.get(Servo.class, "turret");
         shooter = hardwareMap.get(DcMotorEx.class, "shooter");
@@ -32,8 +39,8 @@ public class UltimateGoalTeleOp extends LinearOpMode {
         liftRotateServo = hardwareMap.get(Servo.class, "rotate");
         clawServo = hardwareMap.get(Servo.class, "claw");
 
-        Blw.setDirection(DcMotor.Direction.REVERSE);
-        Flw.setDirection(DcMotor.Direction.REVERSE);
+//        Blw.setDirection(DcMotor.Direction.REVERSE);
+//        Flw.setDirection(DcMotor.Direction.REVERSE);
 
         lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -42,8 +49,14 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        MecanumDrivetrain mecanum = new MecanumDrivetrain(hardwareMap);
+
         //this is the ideal pidf values for a gobilda 5202 1:1 motor
         shooter.setVelocityPIDFCoefficients(4.724,.136,.432,12.6);
+
+        drive.setPoseEstimate(new Pose2d(0,0,Math.toRadians(0)));
 
         clawServo.setPosition(.48);
         liftRotateServo.setPosition(.68);
@@ -59,9 +72,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 
         waitForStart();
 
-        double speed;
-        double rotation;
-        double strafe;
+
         double speedReduce = 1;
         boolean toggle = false;
         boolean open = false;
@@ -75,8 +86,11 @@ public class UltimateGoalTeleOp extends LinearOpMode {
         boolean toggle3 = false;
         int powerShot = 0;
         int reducedPower = 0;
+        double shootHeading = 180;
+        double heading = 0;
 
         while (opModeIsActive()) {
+            drive.update();
             lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             //Open or close the claw
@@ -129,14 +143,31 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 
 
             //Drive code
-            speed = gamepad1.left_stick_y;
-            rotation = gamepad1.right_stick_x;
-            strafe = -gamepad1.left_stick_x;
+            drive.setWeightedDrivePower(
+                    new Pose2d(
+                            gamepad1.left_stick_y * speedReduce,
+                            gamepad1.left_stick_x * speedReduce,
+                            -gamepad1.right_stick_x * speedReduce
+                    )
+            );
 
-            Blw.setPower((speed - strafe + rotation) * speedReduce);
-            Brw.setPower((speed + strafe - rotation) * speedReduce);
-            Flw.setPower((speed + strafe + rotation) * speedReduce);
-            Frw.setPower((speed - strafe - rotation) * speedReduce);
+            Pose2d currentPose = drive.getPoseEstimate();
+
+            if(gamepad1.a){
+
+                Trajectory shoot = drive.trajectoryBuilder(new Pose2d(currentPose.getX(), currentPose.getY(), Math.toRadians(currentPose.getHeading())), Math.toRadians(currentPose.getHeading()))
+                        .lineToLinearHeading(new Pose2d(-1,-2,Math.toRadians(180)))
+                        .build();
+
+                drive.followTrajectory(shoot);
+                //drive.turn(Math.toRadians(shootHeading));
+            }
+
+//            if(gamepad1.x){
+//                shootHeading += .05;
+//            }else if(gamepad1.b){
+//                shootHeading -= .05;
+//            }
 
 
             if(gamepad1.dpad_down){
@@ -161,7 +192,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
             if(gamepad2.right_stick_x != 0){
                 pos += gamepad2.right_stick_x * turretReduction;
             }else if(gamepad2.x){
-                pos = .674;
+                pos = .637;
             }
 
             if(gamepad2.right_bumper){
@@ -225,7 +256,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
                 powerShot = 1;
             }
 
-            if(gamepad2.right_trigger > 0 && running && shooter.getVelocity() >= 2400){
+            if(gamepad2.right_trigger > 0 && running && shooter.getVelocity() >= 2400 && shooter.getVelocity() <= 2550){
                 kicker.setPosition(.55);
             }else{
                 kicker.setPosition(1);
@@ -239,6 +270,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
             telemetry.addData("Turret real", turret.getPosition());
             telemetry.addData("Running?", running);
             telemetry.addData("velocity", shooter.getVelocity());
+            telemetry.addData("heading", shootHeading);
             telemetry.update();
         }
     }

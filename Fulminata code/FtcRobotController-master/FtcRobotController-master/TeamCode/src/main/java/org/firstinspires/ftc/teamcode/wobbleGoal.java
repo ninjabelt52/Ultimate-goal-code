@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class wobbleGoal {
@@ -12,6 +13,14 @@ public class wobbleGoal {
     public wobbleGoal (Servo clawinit, Servo rotateinit){
         claw = clawinit;
         rotate = rotateinit;
+
+        rotate.setPosition(0);
+        claw.setPosition(1);
+    }
+
+    public wobbleGoal(HardwareMap hardwareMap){
+        rotate = hardwareMap.get(Servo.class, "rotate");
+        claw = hardwareMap.get(Servo.class, "claw");
 
         rotate.setPosition(0);
         claw.setPosition(1);
