@@ -57,18 +57,18 @@ public class OdometryAuto extends LinearOpMode {
         waitForStart();
         analysis = rings.getAnalysis();
 
-        //shooter.TurnTurret(.63);
+        shooter.TurnTurret(.63);
 
 
         lift.move(580);
         //turn turret to start motor
-//        while(shooter.getVelocity() < 1000){
-//            shooter.startMotor(2380);
-//        }
+        while(shooter.getVelocity() < 1000){
+            shooter.startMotor(2380);
+        }
 
         switch (analysis){
             case NONE:
-                //shooter.startMotor(2375);
+                shooter.startMotor(2375);
 
                 Trajectory shoot = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(), drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading())).
                         back(60).
@@ -76,17 +76,17 @@ public class OdometryAuto extends LinearOpMode {
 
                 drive.followTrajectory(shoot);
 
-                //shooter.TurnTurret(.672);
+                shooter.TurnTurret(.575);
 
-//                sleep(500);
-//                for(int i = 0; i < 3; i++){
-//                    shooter.shoot();
-//                    sleep(500);
-//                    shooter.retract();
-//                    sleep(500);
-//                }
+                sleep(500);
+                for(int i = 0; i < 3; i++){
+                    shooter.shoot();
+                    sleep(500);
+                    shooter.retract();
+                    sleep(500);
+                }
 
-                //shooter.stopMotor();
+                shooter.stopMotor();
 
                 Trajectory wobbleGoal = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(), drive.getPoseEstimate().getY())).
                         lineToLinearHeading(new Pose2d(6,22, 0)).
@@ -110,7 +110,7 @@ public class OdometryAuto extends LinearOpMode {
                         build();
 
                 Trajectory grabWobble = drive.trajectoryBuilder(new Pose2d(wobbleGoal2.end().getX(), wobbleGoal2.end().getY(),wobbleGoal2.end().getHeading())).
-                        lineToLinearHeading(new Pose2d(-50, 14, Math.toRadians(0))).build();
+                        lineToLinearHeading(new Pose2d(-50, 12, Math.toRadians(0))).build();
 
                 drive.followTrajectory(wobbleGoal2);
                 drive.followTrajectory(grabWobble);

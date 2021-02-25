@@ -192,7 +192,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
             if(gamepad2.right_stick_x != 0){
                 pos += gamepad2.right_stick_x * turretReduction;
             }else if(gamepad2.x){
-                pos = .637;
+                pos = .499;
             }
 
             if(gamepad2.right_bumper){
