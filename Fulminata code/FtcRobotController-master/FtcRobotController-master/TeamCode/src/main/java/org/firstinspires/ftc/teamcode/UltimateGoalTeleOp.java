@@ -1,31 +1,38 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
-
+@Config
 @TeleOp (name = "TeleOpMode")
 public class UltimateGoalTeleOp extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException{
+        FtcDashboard dash = FtcDashboard.getInstance();
+        Telemetry telemetry = dash.getTelemetry();
         DcMotor Blw, Brw, Flw, Frw, lift, intakeMotor;
         Servo liftRotateServo;
         Servo clawServo;
         Servo turret;
-        DcMotorEx shooter;
+        //DcMotorEx shooter;
         Servo kicker;
+        //PIDFController pid = new PIDFController(1,1,.06,1);
 
 //        Blw = hardwareMap.get(DcMotor.class, "Blw");
 //        Brw = hardwareMap.get(DcMotor.class, "Brw");
@@ -33,7 +40,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 //        Frw = hardwareMap.get(DcMotor.class, "Frw");
         lift = hardwareMap.get(DcMotor.class, "lift");
         turret = hardwareMap.get(Servo.class, "turret");
-        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+        //shooter = hardwareMap.get(DcMotorEx.class, "shooter");
         kicker = hardwareMap.get(Servo.class, "kicker");
         intakeMotor = hardwareMap.get(DcMotor.class, "intake");
         liftRotateServo = hardwareMap.get(Servo.class, "rotate");
@@ -47,20 +54,22 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         MecanumDrivetrain mecanum = new MecanumDrivetrain(hardwareMap);
 
         //this is the ideal pidf values for a gobilda 5202 1:1 motor
-        shooter.setVelocityPIDFCoefficients(4.724,.136,.432,12.6);
+        //shooter.setVelocityPIDFCoefficients(4.724,.136,.432,12.6);
 
         drive.setPoseEstimate(new Pose2d(0,0,Math.toRadians(0)));
+        ShooterThread shooterThread = new ShooterThread(hardwareMap);
+        Thread shooter = new Thread(shooterThread);
 
         clawServo.setPosition(.48);
         liftRotateServo.setPosition(.68);
-        shooter.setPower(0);
+        //shooter.setPower(0);
         intakeMotor.setPower(0);
 
 
@@ -89,8 +98,14 @@ public class UltimateGoalTeleOp extends LinearOpMode {
         double shootHeading = 180;
         double heading = 0;
 
+//        pid.setP(1);
+//        pid.setI(1);
+//        pid.setD(.06);
+//        pid.setF(1);
+
         while (opModeIsActive()) {
             drive.update();
+            shooter.start();
             lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             //Open or close the claw
@@ -216,16 +231,27 @@ public class UltimateGoalTeleOp extends LinearOpMode {
                 toggle2 = false;
             }
 
-            shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//            shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             if(running) {
                 if (gamepad2.left_trigger > 0) {
-                    shooter.setVelocity(reducedPower);
+                    //pid.setSetPoint(reducedPower);
+                    //shooter.setVelocity(pid.calculate(shooter.getVelocity(), reducedPower));
+
+                    shooterThread.startMotor(reducedPower);
+
+                    //shooter.setVelocity(reducedPower);
                 } else {
                     //shooter.setPower(.92);
-                    shooter.setVelocity(2500);
+//                    pid.setSetPoint(2500);
+//                    shooter.setVelocity(pid.calculate(shooter.getVelocity(), 2500));
+                    //shooter.setVelocity(2500);
+
+                    shooterThread.startMotor(2500);
                 }
             }else{
-                shooter.setPower(0);
+                //shooter.setPower(0);
+
+                shooterThread.stopMotor();
             }
 
             if(gamepad2.y){
@@ -256,7 +282,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
                 powerShot = 1;
             }
 
-            if(gamepad2.right_trigger > 0 && running && shooter.getVelocity() >= 2400 && shooter.getVelocity() <= 2550){
+            if(gamepad2.right_trigger > 0 && running && shooterThread.getVelocity() >= 2400 && shooterThread.getVelocity() <= 2550){
                 kicker.setPosition(.55);
             }else{
                 kicker.setPosition(1);
@@ -269,7 +295,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
             telemetry.addData("Turret target", pos);
             telemetry.addData("Turret real", turret.getPosition());
             telemetry.addData("Running?", running);
-            telemetry.addData("velocity", shooter.getVelocity());
+            telemetry.addData("velocity", shooterThread.getVelocity());
             telemetry.addData("heading", shootHeading);
             telemetry.update();
         }

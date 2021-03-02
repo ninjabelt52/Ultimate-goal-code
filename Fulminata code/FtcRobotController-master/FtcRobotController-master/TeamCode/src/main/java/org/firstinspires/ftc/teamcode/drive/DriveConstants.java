@@ -75,7 +75,7 @@ public class DriveConstants {
      * This is capped at 85% because there are a number of variables that will prevent your bot from actually
      * reaching this maximum velocity: voltage dropping over the game, bot weight, general mechanical inefficiencies, etc.
      * However, you can push this higher yourself if you'd like. Perhaps raise it to 90-95% of the theoretically 
-     * max velocity. The theoretically maximum velocity is 44.83563225478843 in/s.
+     * max velocity. The theoretically maximum velocity is 44.83563225478843 in/s.37.72958333333333 * Math.PI
      * Just make sure that your bot can actually reach this maximum velocity. Path following will be detrimentally
      * affected if it is aiming for a velocity not actually possible.
      * 
@@ -87,8 +87,8 @@ public class DriveConstants {
      * You are free to raise this on your own if you would like. It is best determined through experimentation.
      
      */
-    public static double MAX_VEL = 38.110287416570166;
-    public static double MAX_ACCEL = 38.110287416570166;
+    public static double MAX_VEL = (37.72958333333333 * Math.PI) * .80;
+    public static double MAX_ACCEL = (37.72958333333333 * Math.PI) * .80;
     public static double MAX_ANG_VEL = Math.toRadians(391.93855260375284);
     public static double MAX_ANG_ACCEL = Math.toRadians(138.19991297468354);
 

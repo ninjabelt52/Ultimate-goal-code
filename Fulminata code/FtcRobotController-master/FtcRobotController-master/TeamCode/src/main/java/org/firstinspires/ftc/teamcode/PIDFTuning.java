@@ -5,6 +5,7 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -23,7 +24,7 @@ public class PIDFTuning extends LinearOpMode {
     public static int velocity = 2500;
     public static double pos = 1;
     public static boolean shoot = false;
-    public static PIDController pid = new PIDController(0,0,0);
+    public static PIDFController pid = new PIDController(0,0,0);
 
     FtcDashboard dash;
     public void runOpMode(){
@@ -47,13 +48,13 @@ public class PIDFTuning extends LinearOpMode {
 
         waitForStart();
         pid.setSetPoint(velocity);
-        pid.calculate();
 
         while (opModeIsActive()){
 
-            pid.setP(p);
-            pid.setI(i);
-            pid.setD(d);
+            pid.setP(1);
+            pid.setI(1);
+            pid.setD(.06);
+            pid.setF(1);
 
             if(gamepad2.right_stick_x != 0){
                 pos += gamepad2.right_stick_x * turretReduction;
@@ -83,7 +84,7 @@ public class PIDFTuning extends LinearOpMode {
             shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             if(running) {
                     //shooter.setPower(.92);
-                    shooter.setPower(pid.calculate(shooter.getVelocity(), velocity));
+                    shooter.setVelocity(pid.calculate(shooter.getVelocity(), velocity));
 
                     if(gamepad2.right_stick_button){
                         lastvelocity = velocity;
