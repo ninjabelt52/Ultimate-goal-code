@@ -59,7 +59,7 @@ public class RingDetermination{
 
         final Scalar BLUE = new Scalar(0, 0, 255);
 
-        final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(75, 50);
+        final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(75, 55);
 
         final int REGION_WIDTH = 115;
         final int REGION_HEIGHT = 20;
@@ -72,8 +72,8 @@ public class RingDetermination{
                 REGION1_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH,
                 REGION1_TOPLEFT_ANCHOR_POINT.y + REGION_HEIGHT);
 
-        Point region2_pointA = new Point(REGION1_TOPLEFT_ANCHOR_POINT.x, 10);
-        Point region2_pointB = new Point(REGION1_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH, 50);
+        Point region2_pointA = new Point(REGION1_TOPLEFT_ANCHOR_POINT.x, 15);
+        Point region2_pointB = new Point(REGION1_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH, 55);
 
         public enum RingPos {
             FOUR,

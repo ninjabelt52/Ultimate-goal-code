@@ -36,15 +36,16 @@ public class PIDFTuning extends LinearOpMode {
         boolean toggle1 = false;
         double changeValue;
         int lastvelocity = velocity;
-        DcMotorEx shooter;
+        DcMotorEx shooter1, shooter2;
         Servo turret, kicker;
 
-        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+        shooter1 = hardwareMap.get(DcMotorEx.class, "shooter1");
+        shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
         turret = hardwareMap.get(Servo.class, "turret");
         kicker = hardwareMap.get(Servo.class, "kicker");
 
-        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         waitForStart();
         pid.setSetPoint(velocity);
@@ -81,19 +82,21 @@ public class PIDFTuning extends LinearOpMode {
                 toggle2 = false;
             }
 
-            shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             if(running) {
                     //shooter.setPower(.92);
-                    shooter.setVelocity(pid.calculate(shooter.getVelocity(), velocity));
+                    shooter1.setVelocity(pid.calculate(shooter1.getVelocity(), velocity));
+                    shooter2.setPower(shooter1.getPower());
 
                     if(gamepad2.right_stick_button){
                         lastvelocity = velocity;
                     }
             }else{
-                shooter.setPower(0);
+                shooter1.setPower(0);
+                shooter2.setPower(shooter1.getPower());
             }
 
-            if(gamepad2.right_trigger > 0 && running && shooter.getVelocity() >= 2450 && shooter.getVelocity() <= 2550|| shoot){
+            if(gamepad2.right_trigger > 0 && running && shooter1.getVelocity() >= 2450 && shooter1.getVelocity() <= 2550|| shoot){
                 kicker.setPosition(.55);
             }else{
                 kicker.setPosition(1);
@@ -180,10 +183,10 @@ public class PIDFTuning extends LinearOpMode {
             //if(gamepad2.right_stick_button)
             //shooter.setVelocityPIDFCoefficients(p,i,d,f);
 
-            Dashboardtelemetry.addData("Current Velocity", shooter.getVelocity());
+            Dashboardtelemetry.addData("Current Velocity", shooter1.getVelocity());
             Dashboardtelemetry.addData("error", pid.getVelocityError());
             Dashboardtelemetry.addData("target Velocity", velocity);
-            Dashboardtelemetry.addData("output power", shooter.getPower() * 2580);
+            Dashboardtelemetry.addData("output power", shooter1.getPower() * 2580);
             Dashboardtelemetry.update();
         }
     }

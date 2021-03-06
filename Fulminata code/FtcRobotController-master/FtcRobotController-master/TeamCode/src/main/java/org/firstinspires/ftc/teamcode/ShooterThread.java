@@ -11,18 +11,23 @@ public class ShooterThread implements Runnable{
 
     private boolean run;
     private int velocity;
-    DcMotorEx shooter;
+    DcMotorEx shooter1;
     PIDFController pid;
-    public static double p,i,d,f;
+    public static double p = .25,i = .2,d = .01,f = 1;
 
     public ShooterThread(HardwareMap hardwareMap){
-        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+        shooter1 = hardwareMap.get(DcMotorEx.class, "shooter1");
+        //shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
         pid = new PIDFController(.25,.2,.01,1);
 
-        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        shooter.setPower(0);
+        //shooter2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        shooter1.setPower(0);
+        //shooter2.setPower(0);
     }
 
     public void startMotor(int velocity){
@@ -36,19 +41,22 @@ public class ShooterThread implements Runnable{
     }
 
     public double getVelocity(){
-        return shooter.getVelocity();
+        return shooter1.getVelocity();
     }
 
     @Override
     public void run(){
-//        pid.setP(p);
-//        pid.setI(i);
-//        pid.setD(d);
-//        pid.setF(f);
+        pid.setP(p);
+        pid.setI(i);
+        pid.setD(d);
+        pid.setF(f);
         if(run){
-            shooter.setVelocity(pid.calculate(shooter.getVelocity(),velocity));
+            shooter1.setVelocity(pid.calculate(shooter1.getVelocity(),velocity));
+            //shooter1.setPower(1);
+            //shooter2.setPower(shooter1.getPower());
         }else {
-            shooter.setVelocity(0);
+            shooter1.setVelocity(0);
+            //shooter2.setPower(shooter1.getPower());
         }
     }
 }

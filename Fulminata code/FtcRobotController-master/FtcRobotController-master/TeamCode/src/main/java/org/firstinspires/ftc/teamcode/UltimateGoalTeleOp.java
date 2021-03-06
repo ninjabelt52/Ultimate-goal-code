@@ -104,7 +104,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 //        pid.setF(1);
 
         while (opModeIsActive()) {
-            drive.update();
+            //drive.update();
             shooter.start();
             lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -166,17 +166,17 @@ public class UltimateGoalTeleOp extends LinearOpMode {
                     )
             );
 
-            Pose2d currentPose = drive.getPoseEstimate();
+            //Pose2d currentPose = drive.getPoseEstimate();
 
-            if(gamepad1.a){
-
-                Trajectory shoot = drive.trajectoryBuilder(new Pose2d(currentPose.getX(), currentPose.getY(), Math.toRadians(currentPose.getHeading())), Math.toRadians(currentPose.getHeading()))
-                        .lineToLinearHeading(new Pose2d(-1,-2,Math.toRadians(180)))
-                        .build();
-
-                drive.followTrajectory(shoot);
-                //drive.turn(Math.toRadians(shootHeading));
-            }
+//            if(gamepad1.a){
+//
+//                Trajectory shoot = drive.trajectoryBuilder(new Pose2d(currentPose.getX(), currentPose.getY(), Math.toRadians(currentPose.getHeading())), Math.toRadians(currentPose.getHeading()))
+//                        .lineToLinearHeading(new Pose2d(-1,-2,Math.toRadians(180)))
+//                        .build();
+//
+//                drive.followTrajectory(shoot);
+//                //drive.turn(Math.toRadians(shootHeading));
+//            }
 
 //            if(gamepad1.x){
 //                shootHeading += .05;
@@ -207,7 +207,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
             if(gamepad2.right_stick_x != 0){
                 pos += gamepad2.right_stick_x * turretReduction;
             }else if(gamepad2.x){
-                pos = .499;
+                pos =.5;
             }
 
             if(gamepad2.right_bumper){
@@ -237,7 +237,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
                     //pid.setSetPoint(reducedPower);
                     //shooter.setVelocity(pid.calculate(shooter.getVelocity(), reducedPower));
 
-                    shooterThread.startMotor(reducedPower);
+                    shooterThread.startMotor(2400);
 
                     //shooter.setVelocity(reducedPower);
                 } else {
@@ -246,7 +246,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 //                    shooter.setVelocity(pid.calculate(shooter.getVelocity(), 2500));
                     //shooter.setVelocity(2500);
 
-                    shooterThread.startMotor(2500);
+                    shooterThread.startMotor(2550);
                 }
             }else{
                 //shooter.setPower(0);
@@ -254,35 +254,37 @@ public class UltimateGoalTeleOp extends LinearOpMode {
                 shooterThread.stopMotor();
             }
 
-            if(gamepad2.y){
-                if(!toggle3){
-                    powerShot++;
-                    toggle3 = true;
-                }
-            }else{
-                toggle3 = false;
-            }
+//            if(gamepad2.y){
+//                if(!toggle3){
+//                    powerShot++;
+//                    toggle3 = true;
+//                }
+//            }else{
+//                toggle3 = false;
+//            }
+//
+//            if(powerShot == 1 && gamepad2.y){
+//                pos = .573;
+//                reducedPower = 2250;
+//                telemetry.speak("left");
+//                telemetry.update();
+//            }else if(powerShot == 2 && gamepad2.y){
+//                pos = .595;
+//                reducedPower = 2350;
+//                telemetry.speak("center");
+//                telemetry.update();
+//            }else if(powerShot == 3 && gamepad2.y){
+//                pos = .618;
+//                reducedPower = 2280;
+//                telemetry.speak("right");
+//                telemetry.update();
+//            }else if (powerShot == 4){
+//                powerShot = 1;
+//            }
 
-            if(powerShot == 1 && gamepad2.y){
-                pos = .573;
-                reducedPower = 2250;
-                telemetry.speak("left");
-                telemetry.update();
-            }else if(powerShot == 2 && gamepad2.y){
-                pos = .595;
-                reducedPower = 2350;
-                telemetry.speak("center");
-                telemetry.update();
-            }else if(powerShot == 3 && gamepad2.y){
-                pos = .618;
-                reducedPower = 2280;
-                telemetry.speak("right");
-                telemetry.update();
-            }else if (powerShot == 4){
-                powerShot = 1;
-            }
-
-            if(gamepad2.right_trigger > 0 && running && shooterThread.getVelocity() >= 2400 && shooterThread.getVelocity() <= 2550){
+            if(gamepad2.right_trigger > 0 && running && shooterThread.getVelocity() >= 2450 && shooterThread.getVelocity() <= 2600){
+                kicker.setPosition(.55);
+            }else if (gamepad2.left_trigger > 0 && gamepad2.right_trigger > 0) {
                 kicker.setPosition(.55);
             }else{
                 kicker.setPosition(1);

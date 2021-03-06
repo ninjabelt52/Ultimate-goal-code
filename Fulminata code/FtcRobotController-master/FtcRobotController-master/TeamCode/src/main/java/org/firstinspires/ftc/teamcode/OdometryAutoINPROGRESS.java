@@ -6,8 +6,8 @@ import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstra
 import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.ProfileAccelerationConstraint;
-import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -20,8 +20,9 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.Arrays;
 
-@Autonomous(name = "Ultimate Goal Auto")
-public class OdometryAuto extends LinearOpMode {
+@Autonomous(name = "IN PROGRESS DO NOT RUN")
+@Disabled
+public class OdometryAutoINPROGRESS extends LinearOpMode {
 
     DcMotor intake;
     OpenCvCamera webcam;
@@ -76,7 +77,7 @@ public class OdometryAuto extends LinearOpMode {
 
         switch (analysis){
             case NONE:
-                shooter.startMotor(2550);
+                shooter.startMotor(2400);
 
                 Trajectory shoot = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(), drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading())).
                         back(60).
@@ -84,21 +85,38 @@ public class OdometryAuto extends LinearOpMode {
 
                 drive.followTrajectory(shoot);
 
-                shooter.TurnTurret(.55);
+                shooter.TurnTurret(.626);
 
                 while(shooter.isNotThere()){
-                    shooter.startMotor(2550);
+                    shooter.startMotor(2400);
                     telemetry.addData("shooter Velo",shooter.getVelocity());
                     telemetry.update();
                 }
 
                 sleep(500);
-                for(int i = 0; i < 3; i++){
-                    shooter.shoot();
-                    sleep(500);
-                    shooter.retract();
-                    sleep(500);
-                }
+
+                //left powershot
+                shooter.TurnTurret(.616);
+                sleep(1000);
+                shooter.shoot();
+                sleep(500);
+                shooter.retract();
+                sleep(500);
+
+                //middle powershot
+                shooter.TurnTurret(.626);
+                sleep(1000);
+                shooter.shoot();
+                sleep(500);
+                shooter.retract();
+                sleep(500);
+
+                //right powershot
+                shooter.TurnTurret(.641);
+                sleep(1000);
+                shooter.shoot();
+                sleep(500);
+                shooter.retract();
 
                 shooter.stopMotor();
 
