@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
@@ -24,14 +25,16 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 public class UltimateGoalTeleOp extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException{
-        FtcDashboard dash = FtcDashboard.getInstance();
-        Telemetry telemetry = dash.getTelemetry();
-        DcMotor Blw, Brw, Flw, Frw, lift, intakeMotor;
+        //FtcDashboard dash = FtcDashboard.getInstance();
+        //Telemetry telemetry = dash.getTelemetry();
+        DcMotor Blw, Brw, Flw, Frw, lift, intakeMotor1,intakeMotor2;
         Servo liftRotateServo;
         Servo clawServo;
         Servo turret;
+        //RingCounter counter;
         //DcMotorEx shooter;
         Servo kicker;
+        //Lights blinkin = new Lights(hardwareMap);
         //PIDFController pid = new PIDFController(1,1,.06,1);
 
 //        Blw = hardwareMap.get(DcMotor.class, "Blw");
@@ -42,12 +45,16 @@ public class UltimateGoalTeleOp extends LinearOpMode {
         turret = hardwareMap.get(Servo.class, "turret");
         //shooter = hardwareMap.get(DcMotorEx.class, "shooter");
         kicker = hardwareMap.get(Servo.class, "kicker");
-        intakeMotor = hardwareMap.get(DcMotor.class, "intake");
+        intakeMotor1 = hardwareMap.get(DcMotor.class, "intake1");
+        intakeMotor2 = hardwareMap.get(DcMotor.class, "intake2");
         liftRotateServo = hardwareMap.get(Servo.class, "rotate");
         clawServo = hardwareMap.get(Servo.class, "claw");
+        //counter = new RingCounter(hardwareMap);
+        //Thread lights = new Thread(blinkin);
 
 //        Blw.setDirection(DcMotor.Direction.REVERSE);
 //        Flw.setDirection(DcMotor.Direction.REVERSE);
+        intakeMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -58,19 +65,21 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 //        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-        MecanumDrivetrain mecanum = new MecanumDrivetrain(hardwareMap);
 
         //this is the ideal pidf values for a gobilda 5202 1:1 motor
         //shooter.setVelocityPIDFCoefficients(4.724,.136,.432,12.6);
 
         drive.setPoseEstimate(new Pose2d(0,0,Math.toRadians(0)));
         ShooterThread shooterThread = new ShooterThread(hardwareMap);
+        KnockDownArm arm = new KnockDownArm(hardwareMap, gamepad1);
+        Thread armThread = new Thread(arm);
         Thread shooter = new Thread(shooterThread);
 
-        clawServo.setPosition(.48);
-        liftRotateServo.setPosition(.68);
+        //clawServo.setPosition(.48);
+        //liftRotateServo.setPosition(.68);
         //shooter.setPower(0);
-        intakeMotor.setPower(0);
+        intakeMotor1.setPower(0);
+        intakeMotor2.setPower(0);
 
 
         telemetry.addData("Status", "Initialized");
@@ -88,7 +97,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
         boolean toggle2 = false;
         boolean running = false;
         double pos = 1;
-        double liftReduction = 16;
+        double liftReduction = 55;
         double turretReduction = 1;
         double liftTarget = 0;
         int direction = 0;
@@ -97,13 +106,24 @@ public class UltimateGoalTeleOp extends LinearOpMode {
         int reducedPower = 0;
         double shootHeading = 180;
         double heading = 0;
+        //int lastNumRings = 0;
 
 //        pid.setP(1);
 //        pid.setI(1);
 //        pid.setD(.06);
 //        pid.setF(1);
+        //lights.start();
+        armThread.start();
 
         while (opModeIsActive()) {
+
+            //light section
+
+//            if(counter.numBottomRings() != lastNumRings){
+//                blinkin.begin();
+//                blinkin.rings(counter.numBottomRings());
+//            }
+
             //drive.update();
             shooter.start();
             lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -194,11 +214,14 @@ public class UltimateGoalTeleOp extends LinearOpMode {
             }
 
             if(direction == 0){
-                intakeMotor.setPower(0);
+                intakeMotor1.setPower(0);
+                intakeMotor2.setPower(0);
             }else if(direction == 1){
-                intakeMotor.setPower(1);
+                intakeMotor1.setPower(1);
+                intakeMotor2.setPower(1);
             }else if(direction == 2){
-                intakeMotor.setPower(-1);
+                intakeMotor1.setPower(-1);
+                intakeMotor2.setPower(-1);
             }
 
             //shooter code
@@ -211,9 +234,9 @@ public class UltimateGoalTeleOp extends LinearOpMode {
             }
 
             if(gamepad2.right_bumper){
-                turretReduction = .005;
+                turretReduction = .01;
             }else{
-                turretReduction = .02;
+                turretReduction = .04;
             }
 
             pos = Range.clip(pos,0, 1);
@@ -237,7 +260,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
                     //pid.setSetPoint(reducedPower);
                     //shooter.setVelocity(pid.calculate(shooter.getVelocity(), reducedPower));
 
-                    shooterThread.startMotor(2400);
+                    shooterThread.startMotor(2330);
 
                     //shooter.setVelocity(reducedPower);
                 } else {
@@ -282,6 +305,12 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 //                powerShot = 1;
 //            }
 
+//            if(gamepad1.y){
+//                blinkin.cancel();
+//            }else if(gamepad1.a){
+//                blinkin.begin();
+//            }
+
             if(gamepad2.right_trigger > 0 && running && shooterThread.getVelocity() >= 2450 && shooterThread.getVelocity() <= 2600){
                 kicker.setPosition(.55);
             }else if (gamepad2.left_trigger > 0 && gamepad2.right_trigger > 0) {
@@ -289,6 +318,8 @@ public class UltimateGoalTeleOp extends LinearOpMode {
             }else{
                 kicker.setPosition(1);
             }
+
+
 
             telemetry.addData("Status", "Running");
             telemetry.addData("Lift current position", lift.getTargetPosition());
@@ -299,8 +330,18 @@ public class UltimateGoalTeleOp extends LinearOpMode {
             telemetry.addData("Running?", running);
             telemetry.addData("velocity", shooterThread.getVelocity());
             telemetry.addData("heading", shootHeading);
+//            telemetry.addData("bottomDist" , counter.bottomDist());
+//            telemetry.addData("topDist", counter.topDist());
+//            telemetry.addData("bottomNum" , counter.numBottomRings());
+//            telemetry.addData("topNum", counter.numTopRings());
+            //telemetry.addData("on?", blinkin.on);
+            //telemetry.addData("lastNumRings", lastNumRings);
             telemetry.update();
+
+            //lastNumRings = counter.numBottomRings();
         }
+        arm.cancel();
+        armThread.interrupt();
     }
 
 }

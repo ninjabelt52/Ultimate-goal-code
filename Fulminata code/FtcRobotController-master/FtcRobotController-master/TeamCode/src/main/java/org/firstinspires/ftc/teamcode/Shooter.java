@@ -18,8 +18,6 @@ public class Shooter {
     public DcMotorEx shooter1;
     public Servo kicker;
     public Servo turret;
-    DistanceSensor bottom, top;
-    private int bottomNum, topNum, totalNum;
     private double velocity;
     PIDFController pid = new PIDFController(.25,.2,.01,1);
 

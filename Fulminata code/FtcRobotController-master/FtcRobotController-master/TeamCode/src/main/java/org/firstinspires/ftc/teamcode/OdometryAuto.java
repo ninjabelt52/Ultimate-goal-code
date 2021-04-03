@@ -10,6 +10,7 @@ import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityCons
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
@@ -23,7 +24,7 @@ import java.util.Arrays;
 @Autonomous(name = "Ultimate Goal Auto")
 public class OdometryAuto extends LinearOpMode {
 
-    DcMotor intake;
+    DcMotor intake1, intake2;
     OpenCvCamera webcam;
     RingDetermination.RingDeterminationPipeline rings;
     RingDetermination.RingDeterminationPipeline.RingPos analysis;
@@ -34,7 +35,10 @@ public class OdometryAuto extends LinearOpMode {
         Shooter shooter = new Shooter(hardwareMap);
         Lift lift = new Lift(hardwareMap);
         wobbleGoal claw = new wobbleGoal(hardwareMap);
-        intake = hardwareMap.get(DcMotor.class, "intake");
+        intake1 = hardwareMap.get(DcMotor.class, "intake1");
+        intake2 = hardwareMap.get(DcMotor.class, "intake2");
+
+        intake2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         drive.setPoseEstimate(new Pose2d(-61,6,Math.toRadians(180)));
 
@@ -76,18 +80,24 @@ public class OdometryAuto extends LinearOpMode {
 
         switch (analysis){
             case NONE:
-                shooter.startMotor(2550);
+                shooter.startMotor(2500);
 
                 Trajectory shoot = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(), drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading())).
-                        back(60).
+                        lineToLinearHeading(new Pose2d(-1,6, Math.toRadians(180)), new MinVelocityConstraint(
+                                        Arrays.asList(
+                                                new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
+                                                new MecanumVelocityConstraint(25, DriveConstants.TRACK_WIDTH)
+                                        )
+                                ),
+                                new ProfileAccelerationConstraint(DriveConstants.MAX_ACCEL)).
                         build();
 
                 drive.followTrajectory(shoot);
 
-                shooter.TurnTurret(.56);
+                shooter.TurnTurret(.55);
 
                 while(shooter.isNotThere()){
-                    shooter.startMotor(2550);
+                    shooter.startMotor(2500);
                     telemetry.addData("shooter Velo",shooter.getVelocity());
                     telemetry.update();
                 }
@@ -103,7 +113,13 @@ public class OdometryAuto extends LinearOpMode {
                 shooter.stopMotor();
 
                 Trajectory wobbleGoal = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(), drive.getPoseEstimate().getY())).
-                        lineToLinearHeading(new Pose2d(15,25, 0)).
+                        lineToLinearHeading(new Pose2d(15,25, 0), new MinVelocityConstraint(
+                                        Arrays.asList(
+                                                new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
+                                                new MecanumVelocityConstraint(15, DriveConstants.TRACK_WIDTH)
+                                        )
+                                ),
+                                new ProfileAccelerationConstraint(DriveConstants.MAX_ACCEL)).
                         build();
 
                 drive.followTrajectory(wobbleGoal);
@@ -116,7 +132,13 @@ public class OdometryAuto extends LinearOpMode {
                 sleep(500);
 
                 Trajectory wobbleGoal2 = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(), drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading())).
-                        lineToLinearHeading(new Pose2d(-52,-3, Math.toRadians(0))).
+                        lineToLinearHeading(new Pose2d(-50,-3, Math.toRadians(0)), new MinVelocityConstraint(
+                                        Arrays.asList(
+                                                new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
+                                                new MecanumVelocityConstraint(25, DriveConstants.TRACK_WIDTH)
+                                        )
+                                ),
+                                new ProfileAccelerationConstraint(DriveConstants.MAX_ACCEL)).
                         addTemporalMarker(2,() -> {
                             claw.openClaw();
                             claw.openArm();
@@ -124,7 +146,13 @@ public class OdometryAuto extends LinearOpMode {
                         build();
 
                 Trajectory grabWobble = drive.trajectoryBuilder(new Pose2d(wobbleGoal2.end().getX(), wobbleGoal2.end().getY(),wobbleGoal2.end().getHeading())).
-                        lineToLinearHeading(new Pose2d(-52, 15, Math.toRadians(0))).build();
+                        lineToLinearHeading(new Pose2d(-50, 15, Math.toRadians(0)), new MinVelocityConstraint(
+                    Arrays.asList(
+                            new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
+                            new MecanumVelocityConstraint(25, DriveConstants.TRACK_WIDTH)
+                    )
+            ),
+                    new ProfileAccelerationConstraint(DriveConstants.MAX_ACCEL)).build();
 
                 drive.followTrajectory(wobbleGoal2);
                 drive.followTrajectory(grabWobble);
@@ -147,9 +175,14 @@ public class OdometryAuto extends LinearOpMode {
 
                 Trajectory park = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(), drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading())).
                         strafeRight(18).
+                        addTemporalMarker(1, () ->{
+                            claw.fold();
+                        }).
                         build();
 
                 drive.followTrajectory(park);
+                claw.fold();
+                sleep(500);
 
                 break;
 
@@ -158,8 +191,8 @@ public class OdometryAuto extends LinearOpMode {
                 Trajectory line = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(), drive.getPoseEstimate().getY(), drive.getPoseEstimate().getHeading())).
                         lineToLinearHeading(new Pose2d(-21,-12,Math.toRadians(180))).
                         addTemporalMarker(1,() -> {
-                            shooter.startMotor(2525);
-                            shooter.TurnTurret(.56);
+                            shooter.startMotor(2500);
+                            shooter.TurnTurret(.55);
                         }).
                         build();
 
@@ -171,12 +204,12 @@ public class OdometryAuto extends LinearOpMode {
                 drive.followTrajectory(shootRing);
 
                 while(shooter.isNotThere()){
-                    shooter.startMotor(2525);
+                    shooter.startMotor(2500);
                     telemetry.addData("shooter Velo",shooter.getVelocity());
                     telemetry.update();
                 }
 
-                shooter.TurnTurret(.56);
+                shooter.TurnTurret(.55);
                 sleep(500);
                 for(int i = 0; i < 3; i++){
                     shooter.shoot();
@@ -185,7 +218,8 @@ public class OdometryAuto extends LinearOpMode {
                     sleep(500);
                 }
 
-                intake.setPower(1);
+                intake1.setPower(1);
+                intake2.setPower(1);
 
                 Trajectory pickupRing = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(),drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading())).
                         forward(24,
@@ -200,7 +234,7 @@ public class OdometryAuto extends LinearOpMode {
                 Trajectory ring4 = drive.trajectoryBuilder(new Pose2d(pickupRing.end().getX(),pickupRing.end().getY(),pickupRing.end().getHeading())).
                         lineToLinearHeading(new Pose2d(-1,9, Math.toRadians(180))).
                         addTemporalMarker(.5, () -> {
-                            shooter.TurnTurret(.57);
+                            shooter.TurnTurret(.55);
                         }).
                         build();
 
@@ -217,7 +251,8 @@ public class OdometryAuto extends LinearOpMode {
                         lineToLinearHeading(new Pose2d(42,18,Math.toRadians(180))).
                         addTemporalMarker(1, () -> {
                             shooter.stopMotor();
-                            intake.setPower(0);
+                            intake1.setPower(0);
+                            intake2.setPower(0);
                         }).
                         build();
 
@@ -230,8 +265,11 @@ public class OdometryAuto extends LinearOpMode {
                 claw.openClaw();
                 sleep(500);
 
+                Trajectory moveOff = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(),drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading())).
+                        lineToLinearHeading(new Pose2d(42,22, Math.toRadians(180))).
+                        build();
 
-                Trajectory grabWobble2 = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(), drive.getPoseEstimate().getY(), drive.getPoseEstimate().getHeading())).
+                Trajectory grabWobble2 = drive.trajectoryBuilder(new Pose2d(moveOff.end().getX(), moveOff.end().getY(), moveOff.end().getHeading())).
                         lineToLinearHeading(new Pose2d(-32,18,Math.toRadians(90))).
                         addTemporalMarker(0,() -> {
                             lift.move(580);
@@ -243,6 +281,7 @@ public class OdometryAuto extends LinearOpMode {
                         }).
                         build();
 
+                drive.followTrajectory(moveOff);
                 drive.followTrajectory(grabWobble2);
 
 
@@ -277,6 +316,8 @@ public class OdometryAuto extends LinearOpMode {
                         lineToLinearHeading(new Pose2d(6,15,Math.toRadians(270))).build();
 
                 drive.followTrajectory(homeBase);
+                claw.fold();
+                sleep(500);
                 break;
 
             case FOUR:
@@ -284,7 +325,7 @@ public class OdometryAuto extends LinearOpMode {
                 Trajectory angle = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(), drive.getPoseEstimate().getY(), drive.getPoseEstimate().getHeading())).
                         lineToLinearHeading(new Pose2d(-21,-15,Math.toRadians(180))).
                         addTemporalMarker(1,() -> {
-                            shooter.startMotor(2375);
+                            shooter.startMotor(2500);
                             shooter.TurnTurret(.58);
                         }).
                         build();
@@ -292,14 +333,14 @@ public class OdometryAuto extends LinearOpMode {
                 Trajectory shootRings = drive.trajectoryBuilder(new Pose2d(angle.end().getX(), angle.end().getY(),angle.end().getHeading())).
                         lineToLinearHeading(new Pose2d(-1,9,Math.toRadians(180))).
                         addTemporalMarker(0,() -> {
-                            shooter.TurnTurret(.56);
+                            shooter.TurnTurret(.55);
                         }).
                         build();
 
                 drive.followTrajectory(angle);
                 drive.followTrajectory(shootRings);
                 while(shooter.isNotThere()){
-                    shooter.startMotor(2550);
+                    shooter.startMotor(2500);
                     telemetry.addData("shooter Velo",shooter.getVelocity());
                     telemetry.update();
                 }
@@ -311,10 +352,11 @@ public class OdometryAuto extends LinearOpMode {
                     sleep(500);
                 }
 
-                intake.setPower(1);
+                intake1.setPower(1);
+                intake2.setPower(1);
 
                 Trajectory pickupRings = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(),drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading())).
-                        lineToLinearHeading(new Pose2d(-25,9, Math.toRadians(170)),
+                        lineToLinearHeading(new Pose2d(-24,9, Math.toRadians(180)),
                                 new MinVelocityConstraint(
                                         Arrays.asList(
                                                 new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
@@ -329,7 +371,7 @@ public class OdometryAuto extends LinearOpMode {
 
                         lineToLinearHeading(new Pose2d(-1,9,Math.toRadians(180))).
                         addTemporalMarker(.5, () -> {
-                            shooter.TurnTurret(.56);
+                            shooter.TurnTurret(.55);
                         }).
                         build();
 
@@ -361,9 +403,11 @@ public class OdometryAuto extends LinearOpMode {
                 sleep(500);
                 claw.openClaw();
                 sleep(500);
+                intake1.setPower(0);
+                intake2.setPower(0);
 
                 Trajectory wobble2 = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(), drive.getPoseEstimate().getY(), drive.getPoseEstimate().getHeading())).
-                        lineToLinearHeading(new Pose2d(-37,17,Math.toRadians(90)),
+                        lineToLinearHeading(new Pose2d(-38,18.5,Math.toRadians(90)),
                                 new MinVelocityConstraint(
                                         Arrays.asList(
                                                 new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
@@ -371,10 +415,10 @@ public class OdometryAuto extends LinearOpMode {
                                         )
                                 ),
                                 new ProfileAccelerationConstraint(DriveConstants.MAX_ACCEL)).
-                        addTemporalMarker(2,() -> {
+                        addTemporalMarker(0,() -> {
                             lift.move(580);
                         }).
-                        addTemporalMarker(2, () -> {
+                        addTemporalMarker(3, () -> {
                             claw.openArm();
                             claw.openArm();
                             lift.move(0);
@@ -400,7 +444,8 @@ public class OdometryAuto extends LinearOpMode {
                         lineToLinearHeading(new Pose2d(6,12,Math.toRadians(270))).build();
 
                 drive.followTrajectory(homeBaseC);
-
+                claw.fold();
+                sleep(500);
                 break;
         }
 
