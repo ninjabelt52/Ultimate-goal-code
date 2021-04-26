@@ -24,7 +24,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.Arrays;
 
-@Autonomous(name = "Odometry auto Red side")
+@Autonomous(name = "Regular auto Red side", group = "normal")
 public class UltimateGoalAutoRED extends LinearOpMode {
 
     DcMotor intake1, intake2;
@@ -93,8 +93,8 @@ public class UltimateGoalAutoRED extends LinearOpMode {
                                 ),
                                 new ProfileAccelerationConstraint(DriveConstants.MAX_ACCEL)).
                         addTemporalMarker(0, () ->{
-                            shooter.startMotor(2550);
-                            shooter.TurnTurret(.55);
+                            shooter.startMotor(2350);
+                            shooter.TurnTurret(.67);
                         }).
                         build();
 
@@ -144,11 +144,11 @@ public class UltimateGoalAutoRED extends LinearOpMode {
                  */
 
                 while(shooter.isNotThere()){
-                    shooter.startMotor(2550);
+                    shooter.startMotor(2350);
                     telemetry.addData("shooter velo", shooter.getVelocity());
                     telemetry.update();
                 }
-                sleep(100);
+                sleep(1000);
 
                 for(int i = 0; i < 3; i++){
                     shooter.shoot();
@@ -179,7 +179,7 @@ public class UltimateGoalAutoRED extends LinearOpMode {
                 sleep(500);
 
                 Trajectory wobbleGoal2 = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(), drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading())).
-                        lineToLinearHeading(new Pose2d(-38,-23, Math.toRadians(90)), new MinVelocityConstraint(
+                        lineToLinearHeading(new Pose2d(-34,-20, Math.toRadians(90)), new MinVelocityConstraint(
                                         Arrays.asList(
                                                 new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
                                                 new MecanumVelocityConstraint(30, DriveConstants.TRACK_WIDTH)
@@ -246,27 +246,27 @@ public class UltimateGoalAutoRED extends LinearOpMode {
 
             case ONE:
                 Trajectory line = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(), drive.getPoseEstimate().getY(), drive.getPoseEstimate().getHeading())).
-                        lineToLinearHeading(new Pose2d(-21,-48,Math.toRadians(180))).
+                        lineToLinearHeading(new Pose2d(-21,-56,Math.toRadians(180))).
                         addTemporalMarker(1,() -> {
-                            shooter.startMotor(2500);
-                            shooter.TurnTurret(.55);
+                            shooter.startMotor(2350);
+                            shooter.TurnTurret(.68);
                         }).
                         build();
 
                 Trajectory shootRing = drive.trajectoryBuilder(new Pose2d(line.end().getX(), line.end().getY(),line.end().getHeading())).
-                        lineToLinearHeading(new Pose2d(-1,-36,Math.toRadians(180))).
+                        lineToLinearHeading(new Pose2d(-1,-24,Math.toRadians(180))).
                         build();
 
                 drive.followTrajectory(line);
                 drive.followTrajectory(shootRing);
 
                 while(shooter.isNotThere()){
-                    shooter.startMotor(2500);
+                    shooter.startMotor(2350);
                     telemetry.addData("shooter Velo",shooter.getVelocity());
                     telemetry.update();
                 }
 
-                shooter.TurnTurret(.55);
+                shooter.TurnTurret(.69);
                 sleep(500);
                 for(int i = 0; i < 3; i++){
                     shooter.shoot();
@@ -279,19 +279,12 @@ public class UltimateGoalAutoRED extends LinearOpMode {
                 intake2.setPower(1);
 
                 Trajectory pickupRing = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(),drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading())).
-                        forward(24,
-                                new MinVelocityConstraint(
-                                        Arrays.asList(
-                                                new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
-                                                new MecanumVelocityConstraint(10, DriveConstants.TRACK_WIDTH)
-                                        )
-                                ),
-                                new ProfileAccelerationConstraint(DriveConstants.MAX_ACCEL)).build();
+                        lineToLinearHeading(new Pose2d(-25, -36, Math.toRadians(180))).build();
 
                 Trajectory ring4 = drive.trajectoryBuilder(new Pose2d(pickupRing.end().getX(),pickupRing.end().getY(),pickupRing.end().getHeading())).
-                        lineToLinearHeading(new Pose2d(-1,-36, Math.toRadians(180))).
+                        lineToLinearHeading(new Pose2d(-1,-24, Math.toRadians(180))).
                         addTemporalMarker(.5, () -> {
-                            shooter.TurnTurret(.55);
+                            shooter.TurnTurret(.69);
                         }).
                         build();
 
@@ -305,7 +298,7 @@ public class UltimateGoalAutoRED extends LinearOpMode {
                 shooter.retract();
 
                 Trajectory dropWobble1 = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(),drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading())).
-                        lineToLinearHeading(new Pose2d(42,18,Math.toRadians(180))).
+                        lineToLinearHeading(new Pose2d(42,-20,Math.toRadians(180))).
                         addTemporalMarker(1, () -> {
                             shooter.stopMotor();
                             intake1.setPower(0);
@@ -323,37 +316,49 @@ public class UltimateGoalAutoRED extends LinearOpMode {
                 sleep(500);
 
                 Trajectory moveOff = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(),drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading())).
-                        lineToLinearHeading(new Pose2d(42,22, Math.toRadians(180))).
+                        lineToLinearHeading(new Pose2d(42,0, Math.toRadians(180))).
                         build();
 
                 Trajectory grabWobble2 = drive.trajectoryBuilder(new Pose2d(moveOff.end().getX(), moveOff.end().getY(), moveOff.end().getHeading())).
-                        lineToLinearHeading(new Pose2d(-32,18,Math.toRadians(90))).
+                        lineToLinearHeading(new Pose2d(-30,-25,Math.toRadians(90))).
                         addTemporalMarker(0,() -> {
                             lift.move(580);
                         }).
                         addTemporalMarker(2, () -> {
                             claw.openArm();
                             claw.openArm();
-                            lift.move(0);
                         }).
                         build();
 
+                Trajectory grabWobble2Slow = drive.trajectoryBuilder(new Pose2d(grabWobble2.end().getX(),grabWobble2.end().getY(),grabWobble2.end().getHeading())).
+                        lineToLinearHeading(new Pose2d(-36,-25,Math.toRadians(90)),
+                                new MinVelocityConstraint(
+                                        Arrays.asList(
+                                                new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
+                                                new MecanumVelocityConstraint(10, DriveConstants.TRACK_WIDTH)
+                                        )
+                                ),
+                                new ProfileAccelerationConstraint(DriveConstants.MAX_ACCEL)).
+                        build();
+
+
                 drive.followTrajectory(moveOff);
                 drive.followTrajectory(grabWobble2);
+                drive.followTrajectory(grabWobble2Slow);
 
-
+                lift.move(0);
                 sleep(500);
                 claw.close();
                 sleep(500);
                 lift.move(580);
 
                 Trajectory driveToRelease = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(),drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading())).
-                        lineToLinearHeading(new Pose2d(30, 24, Math.toRadians(180))).
+                        lineToLinearHeading(new Pose2d(30, -16, Math.toRadians(180))).
                         build();
 
 
                 Trajectory releaseWobble2 = drive.trajectoryBuilder(new Pose2d(driveToRelease.end().getX(),driveToRelease.end().getY(),driveToRelease.end().getHeading())).
-                        lineToLinearHeading(new Pose2d(36,24,Math.toRadians(180)), new MinVelocityConstraint(
+                        lineToLinearHeading(new Pose2d(36,-16,Math.toRadians(180)), new MinVelocityConstraint(
                                         Arrays.asList(
                                                 new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
                                                 new MecanumVelocityConstraint(15, DriveConstants.TRACK_WIDTH)
@@ -370,7 +375,7 @@ public class UltimateGoalAutoRED extends LinearOpMode {
                 claw.openClaw();
 
                 Trajectory homeBase = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(), drive.getPoseEstimate().getY(), drive.getPoseEstimate().getHeading())).
-                        lineToLinearHeading(new Pose2d(6,15,Math.toRadians(270))).build();
+                        lineToLinearHeading(new Pose2d(6,-16,Math.toRadians(270))).build();
 
                 drive.followTrajectory(homeBase);
                 claw.fold();
@@ -530,30 +535,61 @@ public class UltimateGoalAutoRED extends LinearOpMode {
                 */
 
             case FOUR:
-
-                Trajectory angle = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(), drive.getPoseEstimate().getY(), drive.getPoseEstimate().getHeading())).
-                        lineToLinearHeading(new Pose2d(-21,-15,Math.toRadians(180))).
+                Trajectory divert = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(), drive.getPoseEstimate().getY(), drive.getPoseEstimate().getHeading())).
+                        lineToLinearHeading(new Pose2d(-21,-56,Math.toRadians(180))).
                         addTemporalMarker(1,() -> {
-                            shooter.startMotor(2500);
-                            shooter.TurnTurret(.58);
+                            shooter.startMotor(2400);
+                            shooter.TurnTurret(.69);
                         }).
                         build();
 
-                Trajectory shootRings = drive.trajectoryBuilder(new Pose2d(angle.end().getX(), angle.end().getY(),angle.end().getHeading())).
-                        lineToLinearHeading(new Pose2d(-1,9,Math.toRadians(180))).
-                        addTemporalMarker(0,() -> {
-                            shooter.TurnTurret(.55);
-                        }).
+                Trajectory shootRings = drive.trajectoryBuilder(new Pose2d(divert.end().getX(), divert.end().getY(),divert.end().getHeading())).
+                        lineToLinearHeading(new Pose2d(-1,-26,Math.toRadians(180))).
                         build();
 
-                drive.followTrajectory(angle);
+                drive.followTrajectory(divert);
                 drive.followTrajectory(shootRings);
+
                 while(shooter.isNotThere()){
-                    shooter.startMotor(2500);
+                    shooter.startMotor(2400);
                     telemetry.addData("shooter Velo",shooter.getVelocity());
                     telemetry.update();
                 }
-                //sleep(500);
+
+                sleep(500);
+
+                shooter.TurnTurret(.69);
+                sleep(500);
+                for(int i = 0; i < 3; i++){
+                    shooter.shoot();
+                    sleep(300);
+                    shooter.retract();
+                    sleep(300);
+                }
+
+                intake1.setPower(1);
+                intake2.setPower(1);
+
+                Trajectory pickupRings = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(),drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading())).
+                        forward(24,
+                                new MinVelocityConstraint(
+                                        Arrays.asList(
+                                                new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
+                                                new MecanumVelocityConstraint(10, DriveConstants.TRACK_WIDTH)
+                                        )
+                                ),
+                                new ProfileAccelerationConstraint(DriveConstants.MAX_ACCEL)).build();
+
+                Trajectory backLine = drive.trajectoryBuilder(new Pose2d(pickupRings.end().getX(),pickupRings.end().getY(),pickupRings.end().getHeading())).
+                        lineToLinearHeading(new Pose2d(-1,-24, Math.toRadians(180))).
+                        addTemporalMarker(.5, () -> {
+                            shooter.TurnTurret(.69);
+                        }).
+                        build();
+
+                drive.followTrajectory(pickupRings);
+                drive.followTrajectory(backLine);
+
                 for(int i = 0; i < 3; i++){
                     shooter.shoot();
                     sleep(500);
@@ -561,44 +597,10 @@ public class UltimateGoalAutoRED extends LinearOpMode {
                     sleep(500);
                 }
 
-                intake1.setPower(1);
-                intake2.setPower(1);
-
-                Trajectory pickupRings = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(),drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading())).
-                        lineToLinearHeading(new Pose2d(-24,9, Math.toRadians(180)),
-                                new MinVelocityConstraint(
-                                        Arrays.asList(
-                                                new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
-                                                new MecanumVelocityConstraint(12, DriveConstants.TRACK_WIDTH)
-                                        )
-                                ),
-                                new ProfileAccelerationConstraint(DriveConstants.MAX_ACCEL)
-                        ).build();
-
-
-                Trajectory rings = drive.trajectoryBuilder(new Pose2d(pickupRings.end().getX(),pickupRings.end().getY(),pickupRings.end().getHeading())).
-
-                        lineToLinearHeading(new Pose2d(-1,9,Math.toRadians(180))).
-                        addTemporalMarker(.5, () -> {
-                            shooter.TurnTurret(.55);
-                        }).
-                        build();
-
-                drive.followTrajectory(pickupRings);
-                drive.followTrajectory(rings);
-
-
-                sleep(1000);
-
-                for(int i = 0; i < 3; i++) {
-                    shooter.shoot();
-                    sleep(500);
-                    shooter.retract();
-                    sleep(500);
-                }
+                shooter.TurnTurret(1);
 
                 Trajectory zoneC = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(),drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading())).
-                        lineToLinearHeading(new Pose2d(62,16,Math.toRadians(0))).
+                        lineToLinearHeading(new Pose2d(58,-42,Math.toRadians(180))).
                         addTemporalMarker(1,() -> {
                             claw.openArm();
                             shooter.stopMotor();
@@ -616,7 +618,7 @@ public class UltimateGoalAutoRED extends LinearOpMode {
                 intake2.setPower(0);
 
                 Trajectory wobble2 = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(), drive.getPoseEstimate().getY(), drive.getPoseEstimate().getHeading())).
-                        lineToLinearHeading(new Pose2d(-38,18.5,Math.toRadians(90)),
+                        lineToLinearHeading(new Pose2d(-36,-22,Math.toRadians(90)),
                                 new MinVelocityConstraint(
                                         Arrays.asList(
                                                 new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
@@ -642,16 +644,21 @@ public class UltimateGoalAutoRED extends LinearOpMode {
                 lift.move(580);
 
                 Trajectory releaseZoneC = drive.trajectoryBuilder(new Pose2d(wobble2.end().getX(),wobble2.end().getY(),wobble2.end().getHeading())).
-                        lineToLinearHeading(new Pose2d(58,16,Math.toRadians(0))).
+                        lineToLinearHeading(new Pose2d(50,-42,Math.toRadians(180))).
+                        build();
+
+                Trajectory releaseZoneCSlow = drive.trajectoryBuilder(new Pose2d(releaseZoneC.end().getX(),releaseZoneC.end().getY(),releaseZoneC.end().getHeading())).
+                        lineToLinearHeading(new Pose2d(58,-42,Math.toRadians(180))).
                         build();
 
                 drive.followTrajectory(releaseZoneC);
+                drive.followTrajectory(releaseZoneCSlow);
 
                 lift.move(0);
                 claw.openClaw();
 
                 Trajectory homeBaseC = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(), drive.getPoseEstimate().getY(), drive.getPoseEstimate().getHeading())).
-                        lineToLinearHeading(new Pose2d(6,12,Math.toRadians(270))).build();
+                        lineToLinearHeading(new Pose2d(6,-30,Math.toRadians(270))).build();
 
                 drive.followTrajectory(homeBaseC);
                 claw.fold();

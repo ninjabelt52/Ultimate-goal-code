@@ -50,6 +50,109 @@ public class RingDetermination{
 
     }
 
+    public static class RingDeterminationSpecial extends OpenCvPipeline{
+        public int avg1, avg2;
+        Mat region1_Cb, region2_Cb;
+        Mat YCrCb = new Mat();
+        Mat Cb = new Mat();
+
+        final Scalar BLUE = new Scalar(0, 0, 255);
+
+        final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(205, 55);
+
+        final int REGION_WIDTH = 115;
+        final int REGION_HEIGHT = 20;
+
+
+        Point region1_pointA = new Point(
+                REGION1_TOPLEFT_ANCHOR_POINT.x,
+                REGION1_TOPLEFT_ANCHOR_POINT.y);
+        Point region1_pointB = new Point(
+                REGION1_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH,
+                REGION1_TOPLEFT_ANCHOR_POINT.y + REGION_HEIGHT);
+
+        Point region2_pointA = new Point(REGION1_TOPLEFT_ANCHOR_POINT.x, 15);
+        Point region2_pointB = new Point(REGION1_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH, 55);
+
+        public enum RingPos {
+            FOUR,
+            ONE,
+            NONE
+        }
+
+
+        public volatile RingPos position = RingPos.FOUR;
+
+        void inputToCb (Mat input)
+        {
+            Imgproc.cvtColor(input, YCrCb, Imgproc.COLOR_RGB2YCrCb);
+            Core.extractChannel(YCrCb, Cb, 2);
+        }
+
+        @Override
+        public void init (Mat firstFrame)
+        {
+            /*
+             * We need to call this in order to make sure the 'Cb'
+             * object is initialized, so that the submats we make
+             * will still be linked to it on subsequent frames. (If
+             * the object were to only be initialized in processFrame,
+             * then the submats would become delinked because the backing
+             * buffer would be re-allocated the first time a real frame
+             * was crunched)
+             */
+            inputToCb(firstFrame);
+
+
+            region1_Cb = Cb.submat(new Rect(region1_pointA, region1_pointB));
+            region2_Cb = Cb.submat(new Rect(region2_pointA, region2_pointB));
+        }
+
+        @Override
+        public Mat processFrame (Mat input){
+            inputToCb(input);
+
+            avg1 = (int) Core.mean(region1_Cb).val[0];
+            avg2 = (int) Core.mean(region2_Cb).val[0];
+
+            if(avg1 > 120 && avg2 > 120){
+                Imgproc.rectangle(input, region1_pointA, region1_pointB, BLUE, 1);
+                Imgproc.rectangle(input, region2_pointA, region2_pointB, BLUE, 1);
+
+                position = RingPos.NONE;
+            }else{
+                if(avg2 > avg1){
+                    Imgproc.rectangle(input, region1_pointA, region1_pointB, BLUE, -1);
+                    Imgproc.rectangle(input, region2_pointA, region2_pointB, BLUE, 1);
+
+                    position = RingPos.ONE;
+                }else if(avg1 > avg2) {
+                    Imgproc.rectangle(input, region1_pointA, region1_pointB, BLUE, 1);
+                    Imgproc.rectangle(input, region2_pointA, region2_pointB, BLUE, -1);
+
+                    position = RingPos.FOUR;
+                }else{
+                    Imgproc.rectangle(input, region1_pointA, region1_pointB, BLUE, 1);
+                    Imgproc.rectangle(input, region2_pointA, region2_pointB, BLUE, 1);
+                }
+            }
+
+            return input;
+        }
+
+        /*
+         * Call this from the OpMode thread to obtain the latest analysis
+         */
+        public RingPos getAnalysis ()
+        {
+            return position;
+        }
+
+        public String Avg(){
+            return "average 1: " + avg1 + "\nAverage 2: " + avg2;
+        }
+    }
+
     public static class RingDeterminationPipeline extends OpenCvPipeline{
 
         public int avg1, avg2;
@@ -59,7 +162,7 @@ public class RingDetermination{
 
         final Scalar BLUE = new Scalar(0, 0, 255);
 
-        final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(75, 55);
+        final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(56, 55);
 
         final int REGION_WIDTH = 115;
         final int REGION_HEIGHT = 20;

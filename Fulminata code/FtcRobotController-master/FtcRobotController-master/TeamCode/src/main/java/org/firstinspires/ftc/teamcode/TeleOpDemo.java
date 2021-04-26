@@ -75,7 +75,7 @@ public class TeleOpDemo extends LinearOpMode {
         ShooterThread shooterThread = new ShooterThread(hardwareMap);
         Thread shooter = new Thread(shooterThread);
 
-        blinkin.setPattern(Lights.CustomPattern.SPORTHALLE);
+        blinkin.setPattern(Lights.CustomPattern.RINGCOUNTER);
 
 
         //clawServo.setPosition(.48);
@@ -306,20 +306,20 @@ public class TeleOpDemo extends LinearOpMode {
                 kicker.setPosition(1);
             }
 
-            telemetry.addData("Status", "Running");
-            telemetry.addData("Lift current position", lift.getTargetPosition());
-            telemetry.addData("Lift height", lift.getCurrentPosition());
-            telemetry.addData("Kicker pos", kicker.getPosition());
-            telemetry.addData("Turret target", pos);
-            telemetry.addData("Turret real", turret.getPosition());
-            telemetry.addData("Running?", running);
-            telemetry.addData("velocity", shooterThread.getVelocity());
-            telemetry.addData("heading", shootHeading);
-            telemetry.addData("bottomDist" , counter.bottomDist());
+//            telemetry.addData("Status", "Running");
+//            telemetry.addData("Lift current position", lift.getTargetPosition());
+//            telemetry.addData("Lift height", lift.getCurrentPosition());
+//            telemetry.addData("Kicker pos", kicker.getPosition());
+//            telemetry.addData("Turret target", pos);
+//            telemetry.addData("Turret real", turret.getPosition());
+//            telemetry.addData("Running?", running);
+//            telemetry.addData("velocity", shooterThread.getVelocity());
+//            telemetry.addData("heading", shootHeading);
+//            telemetry.addData("bottomDist" , counter.bottomDist());
             telemetry.addData("topDist", counter.topDist());
-            telemetry.addData("bottomNum" , counter.numBottomRings());
-            telemetry.addData("topNum", counter.numTopRings());
-            telemetry.addData("on?", blinkin.on);
+//            telemetry.addData("bottomNum" , counter.numBottomRings());
+//            telemetry.addData("topNum", counter.numTopRings());
+//            telemetry.addData("on?", blinkin.on);
             telemetry.update();
         }
         if(isStopRequested()){

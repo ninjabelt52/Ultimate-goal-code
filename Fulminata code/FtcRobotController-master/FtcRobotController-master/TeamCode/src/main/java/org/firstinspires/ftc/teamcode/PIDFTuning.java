@@ -36,11 +36,11 @@ public class PIDFTuning extends LinearOpMode {
         boolean toggle1 = false;
         double changeValue;
         int lastvelocity = velocity;
-        DcMotorEx shooter1, shooter2;
+        DcMotorEx shooter1;
         Servo turret, kicker;
 
         shooter1 = hardwareMap.get(DcMotorEx.class, "shooter1");
-        shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
+        //shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
         turret = hardwareMap.get(Servo.class, "turret");
         kicker = hardwareMap.get(Servo.class, "kicker");
 
@@ -86,14 +86,14 @@ public class PIDFTuning extends LinearOpMode {
             if(running) {
                     //shooter.setPower(.92);
                     shooter1.setVelocity(pid.calculate(shooter1.getVelocity(), velocity));
-                    shooter2.setPower(shooter1.getPower());
+                    //shooter2.setPower(shooter1.getPower());
 
                     if(gamepad2.right_stick_button){
                         lastvelocity = velocity;
                     }
             }else{
                 shooter1.setPower(0);
-                shooter2.setPower(shooter1.getPower());
+                //shooter2.setPower(shooter1.getPower());
             }
 
             if(gamepad2.right_trigger > 0 && running && shooter1.getVelocity() >= 2450 && shooter1.getVelocity() <= 2550|| shoot){

@@ -15,13 +15,13 @@ public class EncoderTest extends LinearOpMode {
         flw = hardwareMap.get(DcMotor.class, "Flw");
         frw = hardwareMap.get(DcMotor.class, "Frw");
         shooter1 = hardwareMap.get(DcMotor.class, "shooter1");
-        shooter2 = hardwareMap.get(DcMotor.class, "shooter2");
+        //shooter2 = hardwareMap.get(DcMotor.class, "shooter2");
 
         MecanumDrivetrain drive = new MecanumDrivetrain(blw, brw,flw,frw);
 
         waitForStart();
         while(opModeIsActive()) {
-            telemetry.addData("shooter encoder", shooter1.getCurrentPosition() + "\n" + shooter2.getCurrentPosition());
+            telemetry.addData("shooter encoder", shooter1.getCurrentPosition());
             telemetry.addLine(drive.TestEncoders());
             telemetry.update();
         }

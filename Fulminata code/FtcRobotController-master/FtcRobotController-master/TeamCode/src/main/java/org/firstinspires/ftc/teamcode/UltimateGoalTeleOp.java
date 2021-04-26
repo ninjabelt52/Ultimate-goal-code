@@ -34,7 +34,6 @@ public class UltimateGoalTeleOp extends LinearOpMode {
         //RingCounter counter;
         //DcMotorEx shooter;
         Servo kicker;
-        //Lights blinkin = new Lights(hardwareMap);
         //PIDFController pid = new PIDFController(1,1,.06,1);
 
 //        Blw = hardwareMap.get(DcMotor.class, "Blw");
@@ -50,6 +49,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
         liftRotateServo = hardwareMap.get(Servo.class, "rotate");
         clawServo = hardwareMap.get(Servo.class, "claw");
         //counter = new RingCounter(hardwareMap);
+        //Lights blinkin = new Lights(hardwareMap, gamepad1, kicker);
         //Thread lights = new Thread(blinkin);
 
 //        Blw.setDirection(DcMotor.Direction.REVERSE);
@@ -80,6 +80,8 @@ public class UltimateGoalTeleOp extends LinearOpMode {
         //shooter.setPower(0);
         intakeMotor1.setPower(0);
         intakeMotor2.setPower(0);
+
+        //blinkin.setPattern(Lights.CustomPattern.RINGCOUNTER);
 
 
         telemetry.addData("Status", "Initialized");
@@ -114,6 +116,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 //        pid.setF(1);
         //lights.start();
         armThread.start();
+        //lights.start();
 
         while (opModeIsActive()) {
 
@@ -147,7 +150,8 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 
 
 
-            // move the servo controlling the claw servo either inside the robot or outside the robot
+            // move the servo controlling the claw servo
+            // either inside the robot or outside the robot
             if(gamepad2.dpad_left){
                 liftRotateServo.setPosition(0);
             } else if(gamepad2.dpad_right){
@@ -230,11 +234,11 @@ public class UltimateGoalTeleOp extends LinearOpMode {
             if(gamepad2.right_stick_x != 0){
                 pos += gamepad2.right_stick_x * turretReduction;
             }else if(gamepad2.x){
-                pos =.5;
+                pos =.99;
             }
 
             if(gamepad2.right_bumper){
-                turretReduction = .01;
+                turretReduction = .005;
             }else{
                 turretReduction = .04;
             }
@@ -243,7 +247,8 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 
             turret.setPosition(pos);
 
-            //This section of the shooter code revs up the shooter motor and activates the kicker servo at the touch of a button
+            //This section of the shooter code revs up the shooter
+            // motor and activates the kicker servo at the touch of a button
 
             if(gamepad2.b){
                 if(!toggle2){
@@ -260,17 +265,21 @@ public class UltimateGoalTeleOp extends LinearOpMode {
                     //pid.setSetPoint(reducedPower);
                     //shooter.setVelocity(pid.calculate(shooter.getVelocity(), reducedPower));
 
-                    shooterThread.startMotor(2330);
+                    shooterThread.startMotor(2280);
 
                     //shooter.setVelocity(reducedPower);
-                } else {
-                    //shooter.setPower(.92);
+                } else if(gamepad2.y) {
+                    shooterThread.startMotor(2000);
+                }else if(gamepad2.dpad_up){
+                    shooterThread.startMotor(2475);
+                }else{
+                        //shooter.setPower(.92);
 //                    pid.setSetPoint(2500);
 //                    shooter.setVelocity(pid.calculate(shooter.getVelocity(), 2500));
-                    //shooter.setVelocity(2500);
+                        //shooter.setVelocity(2500);
 
-                    shooterThread.startMotor(2550);
-                }
+                        shooterThread.startMotor(2500);
+                    }
             }else{
                 //shooter.setPower(0);
 
@@ -311,9 +320,9 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 //                blinkin.begin();
 //            }
 
-            if(gamepad2.right_trigger > 0 && running && shooterThread.getVelocity() >= 2450 && shooterThread.getVelocity() <= 2600){
+            if(gamepad2.right_trigger > 0 && running && shooterThread.getVelocity() >= 2450 && shooterThread.getVelocity() <= 2550){
                 kicker.setPosition(.55);
-            }else if (gamepad2.left_trigger > 0 && gamepad2.right_trigger > 0) {
+            }else if (gamepad2.left_trigger > 0 && gamepad2.right_trigger > 0 || gamepad2.y && gamepad2.right_trigger > 0 || gamepad2.dpad_up && gamepad2.right_trigger > 0) {
                 kicker.setPosition(.55);
             }else{
                 kicker.setPosition(1);
@@ -322,16 +331,16 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 
 
             telemetry.addData("Status", "Running");
-            telemetry.addData("Lift current position", lift.getTargetPosition());
-            telemetry.addData("Lift height", lift.getCurrentPosition());
-            telemetry.addData("Kicker pos", kicker.getPosition());
+//            telemetry.addData("Lift current position", lift.getTargetPosition());
+//            telemetry.addData("Lift height", lift.getCurrentPosition());
+//            telemetry.addData("Kicker pos", kicker.getPosition());
             telemetry.addData("Turret target", pos);
             telemetry.addData("Turret real", turret.getPosition());
             telemetry.addData("Running?", running);
             telemetry.addData("velocity", shooterThread.getVelocity());
-            telemetry.addData("heading", shootHeading);
-//            telemetry.addData("bottomDist" , counter.bottomDist());
-//            telemetry.addData("topDist", counter.topDist());
+//            telemetry.addData("heading", shootHeading);
+//            telemetry.addData("bottomDist" , blinkin.bottomDist());
+//            telemetry.addData("topDist", blinkin.topDist());
 //            telemetry.addData("bottomNum" , counter.numBottomRings());
 //            telemetry.addData("topNum", counter.numTopRings());
             //telemetry.addData("on?", blinkin.on);
@@ -342,6 +351,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
         }
         arm.cancel();
         armThread.interrupt();
+        //lights.interrupt();
     }
 
 }

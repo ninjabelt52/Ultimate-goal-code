@@ -25,32 +25,8 @@ public class Lights extends Thread {
     @Override
     public void run (){
         while (loop) {
-            if (on) {
                 switch (customPattern) {
-                    case SPORTHALLE:
-//                        leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-//                        try {
-//                            Thread.sleep(1000);
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
-//                        leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
-//                        try {
-//                            Thread.sleep(1000);
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
-//                       leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
-//                        try {
-//                            Thread.sleep(1000);
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
-
-                        leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.BEATS_PER_MINUTE_OCEAN_PALETTE);
-
                     case RINGCOUNTER:
-                        if (counter.numTopRings() > numTopRings) {
 //                            for (int i = 0; i < counter.numTopRings(); i++) {
 //                                leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
 //                                try {
@@ -66,21 +42,11 @@ public class Lights extends Thread {
 //                                }
 //                            }
 
-                            if(counter.numTopRings() == 1){
-                                leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-                            }else if(counter.numTopRings() == 2){
-                                leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
-                            }else if(counter.numTopRings() == 3){
-                                leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
-                            }
-                        }else{
-                            leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
-                        }
 
                         if(counter.numBottomRings() != numBottomRings){
-                            leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+                            leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.FIRE_MEDIUM);
                             try{
-                                Thread.sleep(500);
+                                Thread.sleep(250);
                             }catch (InterruptedException e){
                                 e.printStackTrace();
                             }
@@ -90,14 +56,23 @@ public class Lights extends Thread {
                             }catch(InterruptedException e){
                                 e.printStackTrace();
                             }
+                        }else if(counter.numTopRings() == 1){
+                            leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+                        }else if(counter.numTopRings() == 2){
+                            leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
+                        }else if(counter.numTopRings() == 3){
+                            leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
                         }else{
                             leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
                         }
+
                         numBottomRings = counter.numBottomRings();
                         numTopRings = counter.numTopRings();
                         //on = false;
+                        break;
                     case INIT:
                         leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.FIRE_LARGE);
+                        break;
                     case ENDGAME:
                         leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.BEATS_PER_MINUTE_OCEAN_PALETTE);
 //                        try{
@@ -106,12 +81,12 @@ public class Lights extends Thread {
 //                            e.printStackTrace();
 //                        }
                         //setPattern(CustomPattern.RINGCOUNTER);
-                    default:
-                        leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.BEATS_PER_MINUTE_OCEAN_PALETTE);
+                        break;
+                    case FIRE:
+                        leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.FIRE_MEDIUM);
+                        break;
+
                 }
-            } else {
-                leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
-            }
         }
     }
 
@@ -125,6 +100,14 @@ public class Lights extends Thread {
 
     public void StopLoop(){
         loop = false;
+    }
+
+    public double topDist(){
+        return counter.topDist();
+    }
+
+    public double bottomDist(){
+        return counter.bottomDist();
     }
 
 //    public void RWB(){
@@ -145,7 +128,8 @@ public class Lights extends Thread {
         SPORTHALLE,
         RINGCOUNTER,
         INIT,
-        ENDGAME
+        ENDGAME,
+        FIRE
     }
 
     private void on (){
@@ -153,8 +137,6 @@ public class Lights extends Thread {
             on = true;
         }else if(gamepad1.a) {
             on = false;
-        }else{
-            on = true;
         }
     }
 }

@@ -35,7 +35,7 @@ public class RingCounter {
     }
 
     private void calculate(){
-        if(topDist() > 20){
+        if(topDist() > 16){
             if(topRec) {
                 topNum++;
                 topRec = false;
