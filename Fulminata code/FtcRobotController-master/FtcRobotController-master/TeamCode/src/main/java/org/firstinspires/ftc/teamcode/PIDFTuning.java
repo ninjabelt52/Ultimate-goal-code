@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
@@ -20,9 +21,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class PIDFTuning extends LinearOpMode {
 
     public static boolean running = false;
-    public static double p = 4.724,i = .136,d = .432, f = 12.6;
-    public static int velocity = 2500;
-    public static double pos = 1;
+    public static double p = 2,i = .1,d = .01, f = 1;
+    public static int velocity = 1200;
+    public static double pos = .7;
     public static boolean shoot = false;
     public static PIDFController pid = new PIDController(0,0,0);
 
@@ -36,26 +37,29 @@ public class PIDFTuning extends LinearOpMode {
         boolean toggle1 = false;
         double changeValue;
         int lastvelocity = velocity;
-        DcMotorEx shooter1;
+        DcMotorEx shooter1, shooter2;
         Servo turret, kicker;
 
         shooter1 = hardwareMap.get(DcMotorEx.class, "shooter1");
-        //shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
+        shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
         turret = hardwareMap.get(Servo.class, "turret");
         kicker = hardwareMap.get(Servo.class, "kicker");
 
         shooter1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        shooter1.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
+
         waitForStart();
         pid.setSetPoint(velocity);
 
         while (opModeIsActive()){
 
-            pid.setP(1);
-            pid.setI(1);
-            pid.setD(.06);
-            pid.setF(1);
+            pid.setP(p);
+            pid.setI(i);
+            pid.setD(d);
+            pid.setF(f);
 
             if(gamepad2.right_stick_x != 0){
                 pos += gamepad2.right_stick_x * turretReduction;
@@ -86,17 +90,17 @@ public class PIDFTuning extends LinearOpMode {
             if(running) {
                     //shooter.setPower(.92);
                     shooter1.setVelocity(pid.calculate(shooter1.getVelocity(), velocity));
-                    //shooter2.setPower(shooter1.getPower());
+                    shooter2.setPower(shooter1.getPower());
 
                     if(gamepad2.right_stick_button){
                         lastvelocity = velocity;
                     }
             }else{
                 shooter1.setPower(0);
-                //shooter2.setPower(shooter1.getPower());
+                shooter2.setPower(shooter1.getPower());
             }
 
-            if(gamepad2.right_trigger > 0 && running && shooter1.getVelocity() >= 2450 && shooter1.getVelocity() <= 2550|| shoot){
+            if(gamepad2.right_trigger > 0 && running && shooter1.getVelocity() >= velocity - 150 && shooter1.getVelocity() <= velocity + 50|| shoot){
                 kicker.setPosition(.55);
             }else{
                 kicker.setPosition(1);
@@ -186,6 +190,8 @@ public class PIDFTuning extends LinearOpMode {
             Dashboardtelemetry.addData("Current Velocity", shooter1.getVelocity());
             Dashboardtelemetry.addData("error", pid.getVelocityError());
             Dashboardtelemetry.addData("target Velocity", velocity);
+            Dashboardtelemetry.addData("bottom range", velocity - 150);
+            Dashboardtelemetry.addData("top range", velocity + 50);
             Dashboardtelemetry.addData("output power", shooter1.getPower() * 2580);
             Dashboardtelemetry.update();
         }

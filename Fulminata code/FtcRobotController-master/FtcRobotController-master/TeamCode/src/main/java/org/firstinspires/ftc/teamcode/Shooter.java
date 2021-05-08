@@ -15,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import static android.os.SystemClock.sleep;
 
 public class Shooter {
-    public DcMotorEx shooter1;
+    public DcMotorEx shooter1, shooter2;
     public Servo kicker;
     public Servo turret;
     private double velocity;
@@ -46,8 +46,8 @@ public class Shooter {
 
         shooter1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //shooter2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //shooter1.setVelocityPIDFCoefficients(4.724,.136,.432,12.6);
     }
@@ -57,12 +57,12 @@ public class Shooter {
         this.velocity = velocity;
         pid.setSetPoint(velocity);
         shooter1.setVelocity(pid.calculate(shooter1.getVelocity(),velocity));
-        //shooter2.setPower(shooter1.getPower());
+        shooter2.setPower(shooter1.getPower());
     }
 
     public void stopMotor(){
         shooter1.setPower(0);
-        //shooter2.setPower(shooter1.getPower());
+        shooter2.setPower(shooter1.getPower());
     }
 
     public void shoot(int shootTimes){

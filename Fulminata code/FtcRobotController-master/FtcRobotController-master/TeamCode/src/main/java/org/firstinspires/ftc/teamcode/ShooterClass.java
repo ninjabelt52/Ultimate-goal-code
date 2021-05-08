@@ -13,7 +13,8 @@ public class ShooterClass extends LinearOpMode {
 
     public static double time (double goalHeight, double robotHeight){
         // Please make sure your units are in meters.
-        // This uses a kinematic equation to calculate the time that it takes for the ring to reach its peak, which gives us the time that the ring needs to take in the horizontal direction to meed the goal.
+        // This uses a kinematic equation to calculate the time that it takes for the ring to reach its peak,
+        // which gives us the time that the ring needs to take in the horizontal direction to meed the goal.
 
         return Math.sqrt((goalHeight - robotHeight)/(9.8/2));
     }

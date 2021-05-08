@@ -25,8 +25,8 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 public class UltimateGoalTeleOp extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException{
-        //FtcDashboard dash = FtcDashboard.getInstance();
-        //Telemetry telemetry = dash.getTelemetry();
+        FtcDashboard dash = FtcDashboard.getInstance();
+        Telemetry telemetry = dash.getTelemetry();
         DcMotor Blw, Brw, Flw, Frw, lift, intakeMotor1,intakeMotor2;
         Servo liftRotateServo;
         Servo clawServo;
@@ -44,8 +44,8 @@ public class UltimateGoalTeleOp extends LinearOpMode {
         turret = hardwareMap.get(Servo.class, "turret");
         //shooter = hardwareMap.get(DcMotorEx.class, "shooter");
         kicker = hardwareMap.get(Servo.class, "kicker");
-        intakeMotor1 = hardwareMap.get(DcMotor.class, "intake1");
-        intakeMotor2 = hardwareMap.get(DcMotor.class, "intake2");
+        //intakeMotor1 = hardwareMap.get(DcMotor.class, "intake1");
+        intakeMotor2 = hardwareMap.get(DcMotor.class, "intake1");
         liftRotateServo = hardwareMap.get(Servo.class, "rotate");
         clawServo = hardwareMap.get(Servo.class, "claw");
         //counter = new RingCounter(hardwareMap);
@@ -78,7 +78,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
         //clawServo.setPosition(.48);
         //liftRotateServo.setPosition(.68);
         //shooter.setPower(0);
-        intakeMotor1.setPower(0);
+        //intakeMotor1.setPower(0);
         intakeMotor2.setPower(0);
 
         //blinkin.setPattern(Lights.CustomPattern.RINGCOUNTER);
@@ -103,6 +103,8 @@ public class UltimateGoalTeleOp extends LinearOpMode {
         double turretReduction = 1;
         double liftTarget = 0;
         int direction = 0;
+        int velocity = 1250;
+        boolean notUsed = true;
         boolean toggle3 = false;
         int powerShot = 0;
         int reducedPower = 0;
@@ -117,6 +119,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
         //lights.start();
         armThread.start();
         //lights.start();
+        shooter.start();
 
         while (opModeIsActive()) {
 
@@ -128,7 +131,6 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 //            }
 
             //drive.update();
-            shooter.start();
             lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             //Open or close the claw
@@ -218,13 +220,13 @@ public class UltimateGoalTeleOp extends LinearOpMode {
             }
 
             if(direction == 0){
-                intakeMotor1.setPower(0);
+                //intakeMotor1.setPower(0);
                 intakeMotor2.setPower(0);
             }else if(direction == 1){
-                intakeMotor1.setPower(1);
+                //intakeMotor1.setPower(1);
                 intakeMotor2.setPower(1);
             }else if(direction == 2){
-                intakeMotor1.setPower(-1);
+                //intakeMotor1.setPower(-1);
                 intakeMotor2.setPower(-1);
             }
 
@@ -250,7 +252,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
             //This section of the shooter code revs up the shooter
             // motor and activates the kicker servo at the touch of a button
 
-            if(gamepad2.b){
+            if(gamepad1.b){
                 if(!toggle2){
                     running = !running;
                     toggle2 = true;
@@ -261,29 +263,53 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 
 //            shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             if(running) {
-                if (gamepad2.left_trigger > 0) {
+                if (gamepad2.left_bumper) {
                     //pid.setSetPoint(reducedPower);
                     //shooter.setVelocity(pid.calculate(shooter.getVelocity(), reducedPower));
 
-                    shooterThread.startMotor(2280);
+                    shooterThread.startMotor(1100);
 
                     //shooter.setVelocity(reducedPower);
                 } else if(gamepad2.y) {
-                    shooterThread.startMotor(2000);
-                }else if(gamepad2.dpad_up){
-                    shooterThread.startMotor(2475);
+                    shooterThread.startMotor(1000);
                 }else{
                         //shooter.setPower(.92);
 //                    pid.setSetPoint(2500);
 //                    shooter.setVelocity(pid.calculate(shooter.getVelocity(), 2500));
                         //shooter.setVelocity(2500);
 
-                        shooterThread.startMotor(2500);
+                        shooterThread.startMotor(velocity);
                     }
             }else{
                 //shooter.setPower(0);
 
                 shooterThread.stopMotor();
+            }
+
+            if(gamepad2.dpad_up){
+                if(!notUsed){
+                    velocity = velocity - velocity % 50;
+                    velocity += 50;
+                    notUsed = true;
+                }else{}
+            }else if(gamepad2.dpad_down){
+                if(!notUsed){
+                    velocity = velocity - velocity % 50;
+                    velocity -= 50;
+                    notUsed = true;
+                }
+            }else if(gamepad2.dpad_down && gamepad2.left_trigger > 0){
+                if(!notUsed){
+                    velocity -= 10;
+                    notUsed = true;
+                }
+            }else if(gamepad2.dpad_up && gamepad2.left_trigger > 0){
+                if(!notUsed){
+                    velocity += 10;
+                    notUsed = true;
+                }
+            }else{
+                notUsed = false;
             }
 
 //            if(gamepad2.y){
@@ -320,9 +346,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 //                blinkin.begin();
 //            }
 
-            if(gamepad2.right_trigger > 0 && running && shooterThread.getVelocity() >= 2450 && shooterThread.getVelocity() <= 2550){
-                kicker.setPosition(.55);
-            }else if (gamepad2.left_trigger > 0 && gamepad2.right_trigger > 0 || gamepad2.y && gamepad2.right_trigger > 0 || gamepad2.dpad_up && gamepad2.right_trigger > 0) {
+            if(gamepad1.right_bumper && shooterThread.isInThresh()){
                 kicker.setPosition(.55);
             }else{
                 kicker.setPosition(1);
@@ -351,6 +375,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
         }
         arm.cancel();
         armThread.interrupt();
+        shooter.interrupt();
         //lights.interrupt();
     }
 
