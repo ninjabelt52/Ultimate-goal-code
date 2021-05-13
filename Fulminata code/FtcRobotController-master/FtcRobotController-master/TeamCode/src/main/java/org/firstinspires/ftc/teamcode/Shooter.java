@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -19,7 +20,7 @@ public class Shooter {
     public Servo kicker;
     public Servo turret;
     private double velocity;
-    PIDFController pid = new PIDFController(.25,.2,.01,1);
+    PIDFController pid = new PIDFController(2,.1,.01,1);
 
     public Shooter(DcMotorEx shooterinit, Servo turretinit, Servo kickerinit){
         shooter1 = shooterinit;
@@ -37,7 +38,7 @@ public class Shooter {
 
     public Shooter(HardwareMap hardwareMap){
         shooter1 = hardwareMap.get(DcMotorEx.class, "shooter1");
-        //shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
+        shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
         turret = hardwareMap.get(Servo.class, "turret");
         kicker = hardwareMap.get(Servo.class, "kicker");
 
@@ -46,8 +47,9 @@ public class Shooter {
 
         shooter1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        shooter2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        shooter1.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //shooter1.setVelocityPIDFCoefficients(4.724,.136,.432,12.6);
     }

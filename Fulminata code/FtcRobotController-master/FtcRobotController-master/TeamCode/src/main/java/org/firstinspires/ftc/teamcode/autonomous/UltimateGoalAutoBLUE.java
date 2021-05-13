@@ -28,7 +28,7 @@ import java.util.Arrays;
 @Autonomous(name = "regular auto Blue side", group = "normal")
 public class UltimateGoalAutoBLUE extends LinearOpMode {
 
-    DcMotor intake1, intake2;
+    DcMotor intake1;
     OpenCvCamera webcam;
     RingDetermination.RingDeterminationPipeline rings;
     RingDetermination.RingDeterminationPipeline.RingPos analysis;
@@ -40,9 +40,6 @@ public class UltimateGoalAutoBLUE extends LinearOpMode {
         Lift lift = new Lift(hardwareMap);
         wobbleGoal claw = new wobbleGoal(hardwareMap);
         intake1 = hardwareMap.get(DcMotor.class, "intake1");
-        intake2 = hardwareMap.get(DcMotor.class, "intake2");
-
-        intake2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         drive.setPoseEstimate(new Pose2d(-61,6,Math.toRadians(180)));
 
@@ -94,7 +91,7 @@ public class UltimateGoalAutoBLUE extends LinearOpMode {
                                 ),
                                 new ProfileAccelerationConstraint(DriveConstants.MAX_ACCEL)).
                         addTemporalMarker(0, () ->{
-                            shooter.startMotor(2200);
+                            shooter.startMotor(1150);
                             shooter.TurnTurret(.645);
                         }).
                         build();
@@ -103,10 +100,11 @@ public class UltimateGoalAutoBLUE extends LinearOpMode {
 
 
                 while(shooter.isNotThere()) {
-                    shooter.startMotor(2200);
+                    shooter.startMotor(1150);
                     telemetry.addData("shooter Velo", shooter.getVelocity());
                     telemetry.update();
                 }
+                sleep(500);
 
                 //right powershot
                 shooter.TurnTurret(.77);
@@ -200,7 +198,7 @@ public class UltimateGoalAutoBLUE extends LinearOpMode {
                 Trajectory line = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(), drive.getPoseEstimate().getY(), drive.getPoseEstimate().getHeading())).
                         lineToLinearHeading(new Pose2d(-21,-12,Math.toRadians(180))).
                         addTemporalMarker(1,() -> {
-                            shooter.startMotor(2350);
+                            shooter.startMotor(1250);
                             shooter.TurnTurret(.61);
                         }).
                         build();
@@ -213,7 +211,7 @@ public class UltimateGoalAutoBLUE extends LinearOpMode {
                 drive.followTrajectory(shootRing);
 
                 while(shooter.isNotThere()){
-                    shooter.startMotor(2350);
+                    shooter.startMotor(1250);
                     telemetry.addData("shooter Velo",shooter.getVelocity());
                     telemetry.update();
                 }
@@ -228,7 +226,6 @@ public class UltimateGoalAutoBLUE extends LinearOpMode {
                 }
 
                 intake1.setPower(1);
-                intake2.setPower(1);
 
                 Trajectory pickupRing = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(),drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading())).
                         forward(24,
@@ -261,7 +258,6 @@ public class UltimateGoalAutoBLUE extends LinearOpMode {
                         addTemporalMarker(1, () -> {
                             shooter.stopMotor();
                             intake1.setPower(0);
-                            intake2.setPower(0);
                         }).
                         build();
 
@@ -486,7 +482,7 @@ public class UltimateGoalAutoBLUE extends LinearOpMode {
                 Trajectory angle = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(), drive.getPoseEstimate().getY(), drive.getPoseEstimate().getHeading())).
                         lineToLinearHeading(new Pose2d(-21,-15,Math.toRadians(180))).
                         addTemporalMarker(1,() -> {
-                            shooter.startMotor(2350);
+                            shooter.startMotor(1250);
                             shooter.TurnTurret(.68);
                         }).
                         build();
@@ -501,7 +497,7 @@ public class UltimateGoalAutoBLUE extends LinearOpMode {
                 drive.followTrajectory(angle);
                 drive.followTrajectory(shootRings);
                 while(shooter.isNotThere()){
-                    shooter.startMotor(2350);
+                    shooter.startMotor(1250);
                     telemetry.addData("shooter Velo",shooter.getVelocity());
                     telemetry.update();
                 }
@@ -514,7 +510,6 @@ public class UltimateGoalAutoBLUE extends LinearOpMode {
                 }
 
                 intake1.setPower(1);
-                intake2.setPower(1);
 
                 Trajectory pickupRings = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(),drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading())).
                         lineToLinearHeading(new Pose2d(-24,11, Math.toRadians(180)),
@@ -567,7 +562,6 @@ public class UltimateGoalAutoBLUE extends LinearOpMode {
                 claw.openClaw();
                 sleep(500);
                 intake1.setPower(0);
-                intake2.setPower(0);
 
                 Trajectory wobble2 = drive.trajectoryBuilder(new Pose2d(drive.getPoseEstimate().getX(), drive.getPoseEstimate().getY(), drive.getPoseEstimate().getHeading())).
                         lineToLinearHeading(new Pose2d(-38,16.5,Math.toRadians(90)),

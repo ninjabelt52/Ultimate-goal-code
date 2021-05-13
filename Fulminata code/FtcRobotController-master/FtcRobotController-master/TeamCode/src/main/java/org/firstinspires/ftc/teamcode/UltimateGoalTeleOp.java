@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
@@ -23,10 +24,14 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 @Config
 @TeleOp (name = "TeleOpMode")
 public class UltimateGoalTeleOp extends LinearOpMode {
+    public int velocity = 1250;
+    public static double kickerPos = 1;
+    public static double shootPos = .55;
+
     @Override
     public void runOpMode() throws InterruptedException{
-        FtcDashboard dash = FtcDashboard.getInstance();
-        Telemetry telemetry = dash.getTelemetry();
+//        FtcDashboard dash = FtcDashboard.getInstance();
+//        Telemetry telemetry = dash.getTelemetry();
         DcMotor Blw, Brw, Flw, Frw, lift, intakeMotor1,intakeMotor2;
         Servo liftRotateServo;
         Servo clawServo;
@@ -103,7 +108,6 @@ public class UltimateGoalTeleOp extends LinearOpMode {
         double turretReduction = 1;
         double liftTarget = 0;
         int direction = 0;
-        int velocity = 1250;
         boolean notUsed = true;
         boolean toggle3 = false;
         int powerShot = 0;
@@ -122,7 +126,6 @@ public class UltimateGoalTeleOp extends LinearOpMode {
         shooter.start();
 
         while (opModeIsActive()) {
-
             //light section
 
 //            if(counter.numBottomRings() != lastNumRings){
@@ -252,7 +255,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
             //This section of the shooter code revs up the shooter
             // motor and activates the kicker servo at the touch of a button
 
-            if(gamepad1.b){
+            if(gamepad2.b){
                 if(!toggle2){
                     running = !running;
                     toggle2 = true;
@@ -267,7 +270,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
                     //pid.setSetPoint(reducedPower);
                     //shooter.setVelocity(pid.calculate(shooter.getVelocity(), reducedPower));
 
-                    shooterThread.startMotor(1100);
+                    velocity = 1170;
 
                     //shooter.setVelocity(reducedPower);
                 } else if(gamepad2.y) {
@@ -286,59 +289,39 @@ public class UltimateGoalTeleOp extends LinearOpMode {
                 shooterThread.stopMotor();
             }
 
-            if(gamepad2.dpad_up){
-                if(!notUsed){
-                    velocity = velocity - velocity % 50;
-                    velocity += 50;
-                    notUsed = true;
-                }else{}
-            }else if(gamepad2.dpad_down){
-                if(!notUsed){
-                    velocity = velocity - velocity % 50;
-                    velocity -= 50;
-                    notUsed = true;
-                }
-            }else if(gamepad2.dpad_down && gamepad2.left_trigger > 0){
+            if(gamepad2.left_trigger > 0 && gamepad2.dpad_down){
                 if(!notUsed){
                     velocity -= 10;
+                    telemetry.speak("velocity" + velocity);
+                    telemetry.update();
                     notUsed = true;
                 }
             }else if(gamepad2.dpad_up && gamepad2.left_trigger > 0){
                 if(!notUsed){
                     velocity += 10;
+                    telemetry.speak("velocity" + velocity);
+                    telemetry.update();
+                    notUsed = true;
+                }
+            }else if(gamepad2.dpad_up){
+                if(!notUsed){
+                    velocity = velocity - velocity % 50;
+                    velocity += 50;
+                    telemetry.speak("velocity" + velocity);
+                    telemetry.update();
+                    notUsed = true;
+                }else{}
+            }else if(gamepad2.dpad_down){
+                if(!notUsed){
+                    velocity -= 10;
+                    velocity = velocity - velocity % 50;
+                    telemetry.speak("velocity" + velocity);
+                    telemetry.update();
                     notUsed = true;
                 }
             }else{
                 notUsed = false;
             }
-
-//            if(gamepad2.y){
-//                if(!toggle3){
-//                    powerShot++;
-//                    toggle3 = true;
-//                }
-//            }else{
-//                toggle3 = false;
-//            }
-//
-//            if(powerShot == 1 && gamepad2.y){
-//                pos = .573;
-//                reducedPower = 2250;
-//                telemetry.speak("left");
-//                telemetry.update();
-//            }else if(powerShot == 2 && gamepad2.y){
-//                pos = .595;
-//                reducedPower = 2350;
-//                telemetry.speak("center");
-//                telemetry.update();
-//            }else if(powerShot == 3 && gamepad2.y){
-//                pos = .618;
-//                reducedPower = 2280;
-//                telemetry.speak("right");
-//                telemetry.update();
-//            }else if (powerShot == 4){
-//                powerShot = 1;
-//            }
 
 //            if(gamepad1.y){
 //                blinkin.cancel();
@@ -347,9 +330,9 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 //            }
 
             if(gamepad1.right_bumper && shooterThread.isInThresh()){
-                kicker.setPosition(.55);
+                kicker.setPosition(.6);
             }else{
-                kicker.setPosition(1);
+                kicker.setPosition(.75);
             }
 
 
@@ -362,6 +345,8 @@ public class UltimateGoalTeleOp extends LinearOpMode {
             telemetry.addData("Turret real", turret.getPosition());
             telemetry.addData("Running?", running);
             telemetry.addData("velocity", shooterThread.getVelocity());
+            telemetry.addData("is in range?", shooterThread.isInThresh());
+            telemetry.addData("Target Velocity", shooterThread.velocity);
 //            telemetry.addData("heading", shootHeading);
 //            telemetry.addData("bottomDist" , blinkin.bottomDist());
 //            telemetry.addData("topDist", blinkin.topDist());

@@ -52,7 +52,7 @@ public class PIDFTuning extends LinearOpMode {
         shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         waitForStart();
-        pid.setSetPoint(velocity);
+        //pid.setSetPoint(velocity);
 
         while (opModeIsActive()){
 

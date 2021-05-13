@@ -28,10 +28,14 @@ public class camTest extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()){
+            telemetry.addData("Status", webcam.getStatus());
             telemetry.addData("X pos", webcam.returnXCoordinate());
             telemetry.addData("Y pos,", webcam.returnYCoordinate());
             telemetry.addData("rotation", webcam.returnRotation());
+            telemetry.addData("rotation2", webcam.returnRotation2());
+            telemetry.addData("rotation3", webcam.returnRotation3());
             telemetry.update();
         }
+        webcamThread.interrupt();
     }
 }

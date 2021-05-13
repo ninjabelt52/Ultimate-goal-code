@@ -27,14 +27,14 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.nio.channels.Pipe;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CameraView implements Runnable{
 
     public VuforiaLocalizer vuforia = null;
     OpenCvCamera openCvPassthrough;
     private VuforiaTrackables visionTargets;
-    private VuforiaTrackable target;
-    VuforiaTrackableDefaultListener listener;
 
     private OpenGLMatrix lastKnownLocation;
     private OpenGLMatrix phoneLocation;
@@ -44,8 +44,22 @@ public class CameraView implements Runnable{
     private float robotX = 0;
     private float robotY = 0;
     private float robotAngle = 0;
+    private float robotAngle2 = 0;
+    private float robotAngle3 = 0;
 
     private String status = "";
+
+    private static final float mmPerInch        = 25.4f;
+    private static final float mmTargetHeight   = (6) * mmPerInch;          // the height of the center of the target image above the floor
+
+    // Constants for perimeter targets
+    private static final float halfField = 72 * mmPerInch;
+    private static final float quadField  = 36 * mmPerInch;
+
+    private float[] coordinates;
+
+    private int i = 0;
+    List<VuforiaTrackable> allTrackables;
 
     public CameraView(HardwareMap hardwareMap){
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -56,21 +70,36 @@ public class CameraView implements Runnable{
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
         parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
         parameters.useExtendedTracking = false;
-//        parameters.cameraMonitorFeedback = VuforiaLocalizer.Parameters.CameraMonitorFeedback.AXES;
+        parameters.cameraMonitorFeedback = VuforiaLocalizer.Parameters.CameraMonitorFeedback.AXES;
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
         visionTargets = vuforia.loadTrackablesFromAsset("UltimateGoal");
+        Vuforia.setHint(HINT.HINT_MAX_SIMULTANEOUS_IMAGE_TARGETS, 4);
 
-        //Vuforia.setHint(HINT.HINT_MAX_SIMULTANEOUS_IMAGE_TARGETS, 4);
+        VuforiaTrackable blueTowerGoalTarget = visionTargets.get(0);
+        blueTowerGoalTarget.setName("Blue Tower Goal Target");
+        VuforiaTrackable redTowerGoalTarget = visionTargets.get(1);
+        redTowerGoalTarget.setName("Red Tower Goal Target");
+        VuforiaTrackable redAllianceTarget = visionTargets.get(2);
+        redAllianceTarget.setName("Red Alliance Target");
+        VuforiaTrackable blueAllianceTarget = visionTargets.get(3);
+        blueAllianceTarget.setName("Blue Alliance Target");
+        VuforiaTrackable frontWallTarget = visionTargets.get(4);
+        frontWallTarget.setName("Front Wall Target");
 
-        target = visionTargets.get(0);
-        target.setName("Blue Tower Goal");
-        target.setLocation(createMatrix(0,0,0,0,0,0));
+        allTrackables= new ArrayList<VuforiaTrackable>();
+        allTrackables.addAll(visionTargets);
+        redAllianceTarget.setLocation(createMatrix(0, -halfField, mmTargetHeight, 90, 0, 180));
+        blueAllianceTarget.setLocation(createMatrix(0, halfField, mmTargetHeight, 90, 0, 0));
+        frontWallTarget.setLocation(createMatrix(-halfField, 0, mmTargetHeight,90, 0, 90));
+        blueTowerGoalTarget.setLocation(createMatrix(halfField, quadField, mmTargetHeight,90, 0, -90));
+        redTowerGoalTarget.setLocation(createMatrix(halfField, -quadField, mmTargetHeight, 90, 0, -90));
 
-        phoneLocation = createMatrix(0,0,0,0,0,0);
+        phoneLocation = createMatrix(-9 * mmPerInch,-2.375f * mmPerInch,3.75f * mmPerInch,0,90,180);
 
-        listener = (VuforiaTrackableDefaultListener) target.getListener();
-        listener.setPhoneInformation(phoneLocation, parameters.cameraDirection);
+        for(VuforiaTrackable trackable : allTrackables){
+            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocation, parameters.cameraDirection);
+        }
 
         openCvPassthrough = OpenCvCameraFactory.getInstance().createVuforiaPassthrough(vuforia, parameters, viewportContainerIds[1]);
 
@@ -118,24 +147,35 @@ public class CameraView implements Runnable{
     public void run() {
 
         lastKnownLocation = createMatrix(0,0,0,0,0,0);
+        coordinates = lastKnownLocation.getTranslation().getData();
         visionTargets.activate();
 
         while(on){
 
 //            if(((VuforiaTrackableDefaultListener)listener).isVisible()) {
-                OpenGLMatrix latestLocation = listener.getUpdatedRobotLocation();
+            for(VuforiaTrackable trackable : allTrackables){
+                while(((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
+                    OpenGLMatrix latestLocation = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
 
-                if (latestLocation != null)
-                    lastKnownLocation = latestLocation;
-                status = "tracking" + target.getName() + ": " + listener.isVisible() +
-                        "\nlast known location: " + formatMatrix(lastKnownLocation);
+                    if (latestLocation != null)
+                        lastKnownLocation = latestLocation;
+                    status = "tracking" + allTrackables.get(i).getName() + ": " + ((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible() +
+                            "\nlast known location: " + formatMatrix(lastKnownLocation);
 
-            float[] coordinates = lastKnownLocation.getTranslation().getData();
+                    coordinates = lastKnownLocation.getTranslation().getData();
 
 
-            robotX = coordinates[0];
-            robotY = coordinates[1];
-            robotAngle = Orientation.getOrientation(lastKnownLocation, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES).thirdAngle;
+                    robotX = coordinates[0];
+                    robotY = coordinates[1];
+                    robotAngle = Orientation.getOrientation(lastKnownLocation, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES).thirdAngle;
+                    robotAngle2 = Orientation.getOrientation(lastKnownLocation, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES).secondAngle;
+                    robotAngle3 = Orientation.getOrientation(lastKnownLocation, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES).firstAngle;
+                }
+            }
+
+            if(i >= 4){
+                i = 0;
+            }
         }
         visionTargets.deactivate();
     }
@@ -157,7 +197,15 @@ public class CameraView implements Runnable{
     }
 
     public int returnRotation(){
-        return (int) robotAngle;
+        return (int) robotAngle - 90;
+    }
+
+    public int returnRotation2(){
+        return (int) robotAngle2;
+    }
+
+    public int returnRotation3(){
+        return (int) robotAngle3;
     }
 
     public String getStatus(){
