@@ -21,7 +21,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class PIDFTuning extends LinearOpMode {
 
     public static boolean running = false;
-    public static double p = 2,i = .1,d = .01, f = 1;
+    public static double p = 2,i = .6,d = .015, f = 1;
     public static int velocity = 1200;
     public static double pos = .7;
     public static boolean shoot = false;
@@ -51,10 +51,13 @@ public class PIDFTuning extends LinearOpMode {
         shooter1.setDirection(DcMotorSimple.Direction.REVERSE);
         shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        turret.scaleRange(.25,.98);
+
         waitForStart();
         //pid.setSetPoint(velocity);
 
         while (opModeIsActive()){
+            turret.scaleRange(.25,.98);
 
             pid.setP(p);
             pid.setI(i);
@@ -101,9 +104,9 @@ public class PIDFTuning extends LinearOpMode {
             }
 
             if(gamepad2.right_trigger > 0 && running && shooter1.getVelocity() >= velocity - 150 && shooter1.getVelocity() <= velocity + 50|| shoot){
-                kicker.setPosition(.55);
+                kicker.setPosition(.6);
             }else{
-                kicker.setPosition(1);
+                kicker.setPosition(.75);
             }
 
             if(gamepad2.x){

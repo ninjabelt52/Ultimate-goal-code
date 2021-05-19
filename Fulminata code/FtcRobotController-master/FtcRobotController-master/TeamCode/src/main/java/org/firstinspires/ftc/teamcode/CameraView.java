@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.content.Context;
+
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.qualcomm.ftccommon.SoundPlayer;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.vuforia.HINT;
 import com.vuforia.Vuforia;
@@ -16,8 +19,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -40,6 +45,8 @@ public class CameraView implements Runnable{
     private OpenGLMatrix phoneLocation;
 
     private boolean on = true;
+    private boolean soundPlaying = false;
+    private boolean playSound = true;
 
     private float robotX = 0;
     private float robotY = 0;
@@ -57,11 +64,21 @@ public class CameraView implements Runnable{
     private static final float quadField  = 36 * mmPerInch;
 
     private float[] coordinates;
-
-    private int i = 0;
     List<VuforiaTrackable> allTrackables;
 
+    Context myApp;
+    SoundPlayer.PlaySoundParams params;
+
+    private int soundID = -1;
+
     public CameraView(HardwareMap hardwareMap){
+        //sound initialization
+        myApp = hardwareMap.appContext;
+        soundID = myApp.getResources().getIdentifier("beep", "raw", myApp.getPackageName());
+        params = new SoundPlayer.PlaySoundParams();
+        params.loopControl = 0;
+        params.waitForNonLoopingSoundsToFinish = true;
+
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         int [] viewportContainerIds = OpenCvCameraFactory.getInstance().splitLayoutForMultipleViewports(cameraMonitorViewId, 2, OpenCvCameraFactory.ViewportSplitMethod.VERTICALLY);
 
@@ -121,20 +138,17 @@ public class CameraView implements Runnable{
         }
 
         @Override
-        public Mat processFrame(Mat input)
-        {
+        public Mat processFrame(Mat input) {
             Imgproc.rectangle(
                     input,
                     new Point(
                             input.cols()/4,
                             input.rows()/4),
                     new Point(
-                            input.cols()*(3f/4f),
-                            input.rows()*(3f/4f)),
+                            input.cols() * (3f/4f),
+                            input.rows() * (3f/4f)),
                     color, 4);
-
             return input;
-
         }
     }
 
@@ -155,12 +169,23 @@ public class CameraView implements Runnable{
 //            if(((VuforiaTrackableDefaultListener)listener).isVisible()) {
             for(VuforiaTrackable trackable : allTrackables){
                 while(((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
+                    if(playSound) {
+                        if (!soundPlaying) {
+                            soundPlaying = true;
+                            SoundPlayer.getInstance().startPlaying(myApp, soundID, params, null,
+                                    new Runnable() {
+                                        public void run() {
+                                            soundPlaying = false;
+                                        }
+                                    });
+                        }
+                    }
                     OpenGLMatrix latestLocation = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
-
+                    status = "<h1><strong><span style=\"text-decoration: underline;\"><span style=\"color: #00ff00;\"><span style=\"color: #339967; text-decoration: underline;\">LOCKED ON</span></span></span></strong></h1>";
                     if (latestLocation != null)
                         lastKnownLocation = latestLocation;
-                    status = "tracking" + allTrackables.get(i).getName() + ": " + ((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible() +
-                            "\nlast known location: " + formatMatrix(lastKnownLocation);
+//                    status = "tracking" + allTrackables.get(i).getName() + ": " + ((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible() +
+//                            "\nlast known location: " + formatMatrix(lastKnownLocation);
 
                     coordinates = lastKnownLocation.getTranslation().getData();
 
@@ -171,10 +196,7 @@ public class CameraView implements Runnable{
                     robotAngle2 = Orientation.getOrientation(lastKnownLocation, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES).secondAngle;
                     robotAngle3 = Orientation.getOrientation(lastKnownLocation, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES).firstAngle;
                 }
-            }
-
-            if(i >= 4){
-                i = 0;
+                status = "<h1><span style=\"color: #ff0000;\"><strong><span style=\"text-decoration: underline;\">NOT VISIBLE</span></strong></span></h1>";
             }
         }
         visionTargets.deactivate();
@@ -214,6 +236,10 @@ public class CameraView implements Runnable{
 
     public String formatMatrix(OpenGLMatrix matrix){
         return matrix.formatAsTransform();
+    }
+
+    public void setPlaySound(boolean val){
+        playSound = val;
     }
 
 }

@@ -20,6 +20,7 @@ package org.firstinspires.ftc.teamcode;
  * SOFTWARE.
  */
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -41,10 +42,11 @@ import org.openftc.easyopencv.OpenCvPipeline;
  * 100% accurate) method of detecting the skystone when lined up with
  * the sample regions over the first 3 stones.
  */
-
+@Config
 public class RingDetermination{
     static OpenCvCamera webcam;
     static RingDeterminationPipeline rings;
+    public static int pos1 = 175, pos2 = 135;
 
     public RingDetermination(){
 
@@ -162,7 +164,7 @@ public class RingDetermination{
 
         final Scalar BLUE = new Scalar(0, 0, 255);
 
-        final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(56, 55);
+        final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(56, pos1);
 
         final int REGION_WIDTH = 115;
         final int REGION_HEIGHT = 20;
@@ -175,8 +177,8 @@ public class RingDetermination{
                 REGION1_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH,
                 REGION1_TOPLEFT_ANCHOR_POINT.y + REGION_HEIGHT);
 
-        Point region2_pointA = new Point(REGION1_TOPLEFT_ANCHOR_POINT.x, 15);
-        Point region2_pointB = new Point(REGION1_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH, 55);
+        Point region2_pointA = new Point(REGION1_TOPLEFT_ANCHOR_POINT.x, pos2);
+        Point region2_pointB = new Point(REGION1_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH, pos1);
 
         public enum RingPos {
             FOUR,
@@ -185,7 +187,7 @@ public class RingDetermination{
         }
 
 
-        public volatile RingPos position = RingPos.FOUR;
+        private volatile RingPos position = RingPos.FOUR;
 
         void inputToCb (Mat input)
         {

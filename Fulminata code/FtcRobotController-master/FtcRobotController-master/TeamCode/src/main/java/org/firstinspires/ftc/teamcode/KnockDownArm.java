@@ -20,29 +20,6 @@ public class KnockDownArm extends Thread{
     public void run(){
         run = true;
         while(run){
-//            if(gamepad1.x){
-//                if(!toggle){
-//                    run = !run;
-//                    toggle = true;
-//                }else{}
-//            }else{
-//                toggle = false;
-//            }
-//
-//            arm.setPosition(.85);
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//            arm.setPosition(0);
-//
-//            try {
-//                Thread.sleep(1000);
-//            }catch (InterruptedException e){
-//                e.printStackTrace();
-//            }
-
             if(gamepad1.x){
                 arm.setPosition(.8);
             }else{

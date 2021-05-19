@@ -24,8 +24,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 @Config
-@TeleOp (name = "TeleOpMode BLUE")
-public class UltimateGoalTeleOp extends LinearOpMode {
+@TeleOp (name = "TeleOpMode RED")
+public class UltimateGoalTeleOpRED extends LinearOpMode {
     public TurretCalculations turret;
 
     @Override
@@ -70,7 +70,7 @@ public class UltimateGoalTeleOp extends LinearOpMode {
         DriveThread driveThread = new DriveThread(hardwareMap, gamepad1);
         ShooterThread shooterThread = new ShooterThread(hardwareMap, gamepad2, telemetry);
         Shoot shoot = new Shoot(hardwareMap, gamepad1);
-        turret = new TurretCalculations(hardwareMap, gamepad2, telemetry, TurretCalculations.Target.BLUE_TOWER_GOAL);
+        turret = new TurretCalculations(hardwareMap, gamepad2, telemetry, TurretCalculations.Target.RED_TOWER_GOAL);
         Thread turretThread = new Thread(turret);
         KnockDownArm arm = new KnockDownArm(hardwareMap, gamepad1);
         Thread armThread = new Thread(arm);
@@ -139,30 +139,29 @@ public class UltimateGoalTeleOp extends LinearOpMode {
                 toggle = false;
             }
 
-            if(open){
+            if (open) {
                 clawServo.setPosition(1);
-            } else{
+            } else {
                 clawServo.setPosition(.48);
             }
 
 
-
             // move the servo controlling the claw servo
             // either inside the robot or outside the robot
-            if(gamepad2.left_stick_x < -.1){
+            if (gamepad2.left_stick_x < -.1) {
                 liftRotateServo.setPosition(0);
-            } else if(gamepad2.left_stick_x > .1){
+            } else if (gamepad2.left_stick_x > .1) {
                 liftRotateServo.setPosition(.68);
             }
 
             //lift code
             liftTarget = Range.clip(liftTarget, 0, 1110);
 
-            if(Math.abs(gamepad2.left_stick_y) > .01){
+            if (Math.abs(gamepad2.left_stick_y) > .01) {
                 liftTarget += -gamepad2.left_stick_y * liftReduction;
             }
 
-            lift.setTargetPosition((int)liftTarget);
+            lift.setTargetPosition((int) liftTarget);
             lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             lift.setPower(1);
 
@@ -194,13 +193,13 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 //            }
 
 
-            if(gamepad1.dpad_down){
+            if (gamepad1.dpad_down) {
                 //intakeMotor1.setPower(0);
                 intakeMotor2.setPower(0);
-            }else if(gamepad1.left_bumper){
+            } else if (gamepad1.left_bumper) {
                 //intakeMotor1.setPower(1);
                 intakeMotor2.setPower(1);
-            }else if(gamepad1.left_trigger > 0){
+            } else if (gamepad1.left_trigger > 0) {
                 //intakeMotor1.setPower(-1);
                 intakeMotor2.setPower(-1);
             }
@@ -209,16 +208,15 @@ public class UltimateGoalTeleOp extends LinearOpMode {
             //This specific section of the shooter code is the code for the turret
 
 
-
 //            if(gamepad1.y){
 //                blinkin.cancel();
 //            }else if(gamepad1.a){
 //                blinkin.begin();
 //            }
 
-            if(gamepad1.right_bumper && shooterThread.isInThresh()){
+            if (gamepad1.right_bumper && shooterThread.isInThresh()) {
                 shoot.activate();
-            }else{
+            } else {
                 shoot.deactivate();
             }
 
@@ -234,19 +232,19 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 
                     switch (targetNum) {
                         case 0:
-                            turret.setTarget(TurretCalculations.Target.BLUE_TOWER_GOAL);
-                            break;
-                        case 1:
                             turret.setTarget(TurretCalculations.Target.RED_TOWER_GOAL);
                             break;
+                        case 1:
+                            turret.setTarget(TurretCalculations.Target.BLUE_TOWER_GOAL);
+                            break;
                         case 2:
-                            turret.setTarget(TurretCalculations.Target.BLUE_POWERSHOT1);
+                            turret.setTarget(TurretCalculations.Target.RED_POWERSHOT1);
                             break;
                         case 3:
-                            turret.setTarget(TurretCalculations.Target.BLUE_POWERSHOT2);
+                            turret.setTarget(TurretCalculations.Target.RED_POWERSHOT2);
                             break;
                         case 4:
-                            turret.setTarget(TurretCalculations.Target.BLUE_POWERSHOT3);
+                            turret.setTarget(TurretCalculations.Target.RED_POWERSHOT3);
                             break;
                     }
                     toggle2 = true;
@@ -263,19 +261,19 @@ public class UltimateGoalTeleOp extends LinearOpMode {
 
                     switch (targetNum) {
                         case 0:
-                            turret.setTarget(TurretCalculations.Target.BLUE_TOWER_GOAL);
-                            break;
-                        case 1:
                             turret.setTarget(TurretCalculations.Target.RED_TOWER_GOAL);
                             break;
+                        case 1:
+                            turret.setTarget(TurretCalculations.Target.BLUE_TOWER_GOAL);
+                            break;
                         case 2:
-                            turret.setTarget(TurretCalculations.Target.BLUE_POWERSHOT1);
+                            turret.setTarget(TurretCalculations.Target.RED_POWERSHOT1);
                             break;
                         case 3:
-                            turret.setTarget(TurretCalculations.Target.BLUE_POWERSHOT2);
+                            turret.setTarget(TurretCalculations.Target.RED_POWERSHOT2);
                             break;
                         case 4:
-                            turret.setTarget(TurretCalculations.Target.BLUE_POWERSHOT3);
+                            turret.setTarget(TurretCalculations.Target.RED_POWERSHOT3);
                             break;
                     }
                     toggle2 = true;
